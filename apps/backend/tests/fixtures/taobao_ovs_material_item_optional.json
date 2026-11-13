@@ -1,0 +1,85 @@
+{
+  "_comment": "Test fixture shaped like the documented response of taobao.ovs.tbk.material.item.optional (Taobao Open Platform API doc 72807). Values are illustrative; this is not real listing data.",
+  "ovs_tbk_material_item_optional_response": {
+    "total_results": 1234,
+    "next_page": 2,
+    "has_next": true,
+    "result_list": {
+      "material_item_summary_info": [
+        {
+          "item_id": "TEST-tmall-flagship-0001",
+          "item_basic_info": {
+            "title": "Heavyweight black zip-up hoodie, oversized fit",
+            "short_title": "Zip-up hoodie",
+            "pict_url": "//img.example.com/test/hoodie.jpg",
+            "white_image": "https://img.example.com/test/hoodie-white.jpg",
+            "small_images": {"string": ["//img.example.com/test/hoodie-2.jpg"]},
+            "brand_name": "Test Brand",
+            "category_id": 50000671,
+            "category_name": "Hoodies",
+            "level_one_category_id": 16,
+            "level_one_category_name": "Women's clothing",
+            "seller_id": 1001,
+            "shop_title": "Test Brand官方旗舰店",
+            "shop_dsr": 48435,
+            "ratesum": 16,
+            "user_type": 1,
+            "is_prepay": true,
+            "tk_total_sales": "300",
+            "annual_vol": "1.2万+",
+            "provcity": "浙江 杭州"
+          },
+          "price_promotion_info": {
+            "reserve_price": "299.00",
+            "zk_final_price": "239.00",
+            "final_promotion_price": "219.00",
+            "zk_final_localized_price": {"formatted_price": "HK$259.50", "formatted_price_number": "259.50", "currency_symbol": "HK$", "currency_code": "HKD"},
+            "promotion_tag_list": {"material_item_promotion_tag_d_t_o": [{"tag_name": "包邮"}, {"tag_name": "满200减20"}]}
+          },
+          "publish_info": {
+            "click_url": "https://intl.taobao.com/dp?h5Url=test-0001",
+            "coupon_share_url": "https://intl.taobao.com/dp?h5Url=test-0001-coupon",
+            "income_rate": "5.50",
+            "commission_type": "COMMON"
+          },
+          "coupon_info": {"coupon_sale_text_info": "满200元减20元", "coupon_amount": "20"}
+        },
+        {
+          "item_id": "TEST-taobao-alt-0002",
+          "item_basic_info": {
+            "title": "Same paragraph puffer vest, olive, loose",
+            "pict_url": "//img.example.com/test/vest.jpg",
+            "category_name": "Vests",
+            "level_one_category_name": "Men's clothing",
+            "seller_id": 1002,
+            "shop_title": "Test street shop",
+            "shop_dsr": 47000,
+            "user_type": 0,
+            "annual_vol": "800+"
+          },
+          "price_promotion_info": {"reserve_price": "159.00", "zk_final_price": "129.00", "final_promotion_price": "129.00"},
+          "publish_info": {"click_url": "//intl.taobao.com/dp?h5Url=test-0002"}
+        },
+        {
+          "item_id": "TEST-replica-0003",
+          "item_basic_info": {
+            "title": "High imitation retro basketball sneakers, white",
+            "pict_url": "//img.example.com/test/sneaker.jpg",
+            "category_name": "Basketball shoes",
+            "seller_id": 1003,
+            "shop_title": "Test sneaker shop",
+            "user_type": 0
+          },
+          "price_promotion_info": {"zk_final_price": "260.00"},
+          "publish_info": {"click_url": "https://intl.taobao.com/dp?h5Url=test-0003"}
+        },
+        {
+          "item_id": "TEST-no-link-0004",
+          "item_basic_info": {"title": "Listing without a promotion link", "user_type": 0},
+          "price_promotion_info": {"zk_final_price": "10.00"},
+          "publish_info": {}
+        }
+      ]
+    }
+  }
+}

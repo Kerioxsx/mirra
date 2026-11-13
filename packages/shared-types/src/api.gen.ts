@@ -90,6 +90,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search
+         * @description Search every connected marketplace. Results keep their marketplace, seller and original link;
+         *     prices are converted to the shopper's currency (approximate) with an estimated landed cost.
+         */
+        get: operations["search_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -179,6 +200,22 @@ export interface components {
             /** Password */
             password: string;
         };
+        /**
+         * Authenticity
+         * @description Never upgraded from AI output alone.
+         * @enum {string}
+         */
+        Authenticity: "brand_direct" | "authenticated" | "seller_claimed" | "unverified" | "style_alternative" | "replica_advertised";
+        /**
+         * Availability
+         * @enum {string}
+         */
+        Availability: "in_stock" | "low_stock" | "out_of_stock" | "unknown";
+        /**
+         * Category
+         * @enum {string}
+         */
+        Category: "t_shirt" | "shirt" | "long_sleeve" | "tank_top" | "sweater" | "hoodie" | "sweatshirt" | "zip_up" | "vest" | "jacket" | "coat" | "dress" | "jumpsuit" | "jeans" | "baggy_pants" | "cargo_pants" | "trousers" | "sweatpants" | "shorts" | "skirt" | "sneakers" | "boots" | "shoes" | "sandals" | "hat" | "cap" | "beanie" | "glasses" | "jewelry" | "scarf" | "belt" | "watch" | "bag" | "accessory";
         /** ConnectorCapabilities */
         ConnectorCapabilities: {
             /**
@@ -237,6 +274,20 @@ export interface components {
              */
             text_search: boolean;
         };
+        /** CostComponent */
+        CostComponent: {
+            /** @description In the buyer's currency; None = unknown */
+            amount: components["schemas"]["Money"] | null;
+            /**
+             * Estimate
+             * @default false
+             */
+            estimate: boolean;
+            /** Label */
+            label: string;
+            /** Note */
+            note?: string | null;
+        };
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -249,6 +300,13 @@ export interface components {
         /** ErrorResponse */
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
+        };
+        /** FxInfo */
+        FxInfo: {
+            /** As Of */
+            as_of: string;
+            /** Source */
+            source: string;
         };
         /** Health */
         Health: {
@@ -269,6 +327,27 @@ export interface components {
          * @enum {string}
          */
         IntegrationType: "official_api" | "affiliate_feed" | "partner_api" | "demo";
+        /** LandedCost */
+        LandedCost: {
+            /**
+             * Complete
+             * @description False if any component is unknown
+             */
+            complete: boolean;
+            /** Components */
+            components: components["schemas"]["CostComponent"][];
+            /** Currency */
+            currency: string;
+            /** Fx As Of */
+            fx_as_of?: string | null;
+            /** @description Sum of the known components */
+            total_known: components["schemas"]["Money"] | null;
+        };
+        /**
+         * ListingCondition
+         * @enum {string}
+         */
+        ListingCondition: "new" | "new_with_tags" | "new_without_tags" | "used_like_new" | "used_good" | "used_fair" | "refurbished" | "unknown";
         /** LoginRequest */
         LoginRequest: {
             /**
@@ -301,11 +380,145 @@ export interface components {
             notes?: string | null;
             status: components["schemas"]["MarketplaceStatus"];
         };
+        /** MarketplaceSearchStatus */
+        MarketplaceSearchStatus: {
+            /**
+             * Count
+             * @default 0
+             */
+            count: number;
+            /** Id */
+            id: string;
+            /** Message */
+            message?: string | null;
+            /** Name */
+            name: string;
+            /**
+             * Query Sent
+             * @description e.g. the Chinese query sent to Taobao
+             */
+            query_sent?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "error" | "timeout" | "not_configured" | "blocked";
+        };
         /**
          * MarketplaceStatus
          * @enum {string}
          */
         MarketplaceStatus: "active" | "planned" | "blocked" | "disabled";
+        /** Money */
+        Money: {
+            /** Amount */
+            amount: number | string;
+            /** Currency */
+            currency: string;
+        };
+        /** NormalizedListing */
+        NormalizedListing: {
+            /** @default unverified */
+            authenticity: components["schemas"]["Authenticity"];
+            /**
+             * Authenticity Reasons
+             * @description Why the listing got its authenticity label
+             */
+            authenticity_reasons?: string[];
+            /** @default unknown */
+            availability: components["schemas"]["Availability"];
+            /** Brand */
+            brand?: string | null;
+            category?: components["schemas"]["Category"] | null;
+            /** Colors */
+            colors?: string[];
+            /** @default unknown */
+            condition: components["schemas"]["ListingCondition"];
+            /** @description Marketplace's own estimate after coupons/promotions */
+            estimated_final_price?: components["schemas"]["Money"] | null;
+            /** External Id */
+            external_id: string;
+            /** Gtin */
+            gtin?: string | null;
+            /** Image Urls */
+            image_urls?: string[];
+            /**
+             * Is Demo
+             * @description Sample data, never a real listing
+             * @default false
+             */
+            is_demo: boolean;
+            /** @description Struck-through original price */
+            list_price?: components["schemas"]["Money"] | null;
+            /** @description Price converted by the marketplace itself, in a local currency */
+            localized_price?: components["schemas"]["Money"] | null;
+            /** Marketplace Id */
+            marketplace_id: string;
+            /** Mpn */
+            mpn?: string | null;
+            /**
+             * Original Title
+             * @description Title in the marketplace's language when `title` is translated
+             */
+            original_title?: string | null;
+            price?: components["schemas"]["Money"] | null;
+            /** Promotion Tags */
+            promotion_tags?: string[];
+            /** Review Count */
+            review_count?: number | null;
+            /** Review Rating */
+            review_rating?: number | string | null;
+            /**
+             * Sales Label
+             * @description e.g. "10k+ sold this year"
+             */
+            sales_label?: string | null;
+            seller?: components["schemas"]["NormalizedSeller"] | null;
+            shipping?: components["schemas"]["ShippingQuote"] | null;
+            /** Ships From Country */
+            ships_from_country?: string | null;
+            /** Sizes Available */
+            sizes_available?: string[] | null;
+            /**
+             * Store Badge
+             * @description e.g. "Tmall", "Official store"
+             */
+            store_badge?: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Title Language
+             * @description BCP-47 code of `title`
+             */
+            title_language?: string | null;
+            /**
+             * Title Machine Translated
+             * @default false
+             */
+            title_machine_translated: boolean;
+            /** Url */
+            url: string;
+        };
+        /** NormalizedSeller */
+        NormalizedSeller: {
+            /** Country */
+            country?: string | null;
+            /** External Id */
+            external_id: string;
+            /** Feedback Percent */
+            feedback_percent?: number | string | null;
+            /** Feedback Score */
+            feedback_score?: number | null;
+            /** Name */
+            name?: string | null;
+            /**
+             * Rating
+             * @description Shop rating on a 0-5 scale
+             */
+            rating?: number | string | null;
+            /** Url */
+            url?: string | null;
+        };
         /**
          * Preferences
          * @description Style profile used by search ranking, the AI stylist and the dresser.
@@ -376,6 +589,40 @@ export interface components {
          * @enum {string}
          */
         RenderQuality: "low" | "medium" | "high";
+        /** SearchResponse */
+        SearchResponse: {
+            /** Currency */
+            currency: string;
+            fx?: components["schemas"]["FxInfo"] | null;
+            /** Has More */
+            has_more: boolean;
+            /** Marketplaces */
+            marketplaces: components["schemas"]["MarketplaceSearchStatus"][];
+            /** Page */
+            page: number;
+            /** Query */
+            query: string;
+            /** Results */
+            results: components["schemas"]["SearchResult"][];
+        };
+        /** SearchResult */
+        SearchResult: {
+            /** @description Item price in the shopper's currency (approximate when converted) */
+            converted_price: components["schemas"]["Money"] | null;
+            landed_cost?: components["schemas"]["LandedCost"] | null;
+            listing: components["schemas"]["NormalizedListing"];
+        };
+        /** ShippingQuote */
+        ShippingQuote: {
+            /** @description None = unknown; amount 0 = free shipping */
+            cost: components["schemas"]["Money"] | null;
+            /** Max Days */
+            max_days?: number | null;
+            /** Min Days */
+            min_days?: number | null;
+            /** Ship To Country */
+            ship_to_country?: string | null;
+        };
         /** TokenResponse */
         TokenResponse: {
             /** Access Token */
@@ -709,6 +956,55 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MarketplaceInfo"][];
+                };
+            };
+        };
+    };
+    search_search: {
+        parameters: {
+            query?: {
+                category?: components["schemas"]["Category"] | null;
+                currency?: string | null;
+                marketplace?: string[] | null;
+                page?: number;
+                page_size?: number;
+                price_max?: number | string | null;
+                price_min?: number | string | null;
+                q?: string;
+                ship_to?: string | null;
+                sort?: "relevance" | "price_asc" | "price_desc" | "newest";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

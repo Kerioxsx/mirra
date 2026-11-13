@@ -45,5 +45,20 @@ async def current_user(
     return user
 
 
+async def optional_user(
+    session: SessionDep,
+    creds: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
+) -> User | None:
+    """For public endpoints that personalise when signed in; a bad token just means anonymous."""
+    if creds is None or creds.scheme.lower() != "bearer":
+        return None
+    user_id = decode_access_token(creds.credentials)
+    if user_id is None:
+        return None
+    user = await session.get(User, user_id)
+    return user if user is not None and user.is_active else None
+
+
 CurrentUser = Annotated[User, Depends(current_user)]
+OptionalUser = Annotated[User | None, Depends(optional_user)]
 ClientDep = Annotated[ClientKind, Depends(client_kind)]

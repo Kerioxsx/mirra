@@ -208,6 +208,9 @@ importers:
       '@mirra/garment-system':
         specifier: workspace:*
         version: link:../garment-system
+      '@mirra/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
       clsx:
         specifier: 2.1.1
         version: 2.1.1

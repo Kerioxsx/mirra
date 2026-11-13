@@ -78,6 +78,7 @@ class NormalizedSeller(BaseModel):
     country: str | None = None
     feedback_score: int | None = None
     feedback_percent: Decimal | None = None
+    rating: Decimal | None = Field(default=None, description="Shop rating on a 0-5 scale")
 
 
 class ShippingQuote(BaseModel):
@@ -107,6 +108,27 @@ class NormalizedListing(BaseModel):
     review_count: int | None = None
     gtin: str | None = None
     mpn: str | None = None
+    # --- cross-border fields (Taobao and other international sources) ---
+    original_title: str | None = Field(
+        default=None, description="Title in the marketplace's language when `title` is translated"
+    )
+    title_language: str | None = Field(default=None, description="BCP-47 code of `title`")
+    title_machine_translated: bool = False
+    list_price: Money | None = Field(default=None, description="Struck-through original price")
+    estimated_final_price: Money | None = Field(
+        default=None, description="Marketplace's own estimate after coupons/promotions"
+    )
+    localized_price: Money | None = Field(
+        default=None, description="Price converted by the marketplace itself, in a local currency"
+    )
+    ships_from_country: str | None = None
+    store_badge: str | None = Field(default=None, description='e.g. "Tmall", "Official store"')
+    sales_label: str | None = Field(default=None, description='e.g. "10k+ sold this year"')
+    promotion_tags: list[str] = Field(default_factory=list)
+    authenticity_reasons: list[str] = Field(
+        default_factory=list, description="Why the listing got its authenticity label"
+    )
+    is_demo: bool = Field(default=False, description="Sample data, never a real listing")
 
 
 class ConnectorSearchPage(BaseModel):
@@ -114,6 +136,9 @@ class ConnectorSearchPage(BaseModel):
     listings: list[NormalizedListing]
     total: int | None = None
     next_offset: int | None = None
+    query_sent: str | None = Field(
+        default=None, description="The query as sent to the provider (e.g. translated to Chinese)"
+    )
 
 
 class MarketplaceConnector(ABC):

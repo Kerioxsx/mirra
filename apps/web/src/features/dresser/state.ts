@@ -1,7 +1,15 @@
 "use client";
 import { create } from "zustand";
-import { genericGarment, resolveColor } from "@mirra/garment-system";
-import { createOutfitStore, emptyOutfit, equip, itemFor, type Outfit } from "@mirra/outfit-engine";
+import { approximateGarment, genericGarment, resolveColor } from "@mirra/garment-system";
+import {
+  createOutfitStore,
+  emptyOutfit,
+  equip,
+  itemFor,
+  type Outfit,
+  type OutfitItem,
+  type Price,
+} from "@mirra/outfit-engine";
 import {
   DEFAULT_APPEARANCE,
   DEFAULT_BODY,
@@ -65,8 +73,46 @@ export function starterOutfit(): Outfit {
 
 const KEY = "mirra.dresser.v1";
 
+/** A real product tried on from search: enough to rebuild its approximate garment and link. */
+export interface ProductRef {
+  productId: string;
+  title: string;
+  category: Category;
+  colors: string[];
+  marketplace: string;
+  listingId: string;
+  url: string;
+  price: Price | null;
+}
+
+export function productItem(p: ProductRef, colorHex?: string): OutfitItem {
+  const garment = approximateGarment({
+    id: p.productId,
+    title: p.title,
+    category: p.category,
+    colors: p.colors,
+  });
+  return itemFor(garment, {
+    colorHex: colorHex ?? garment.colorVariants[0]?.hex,
+    source: {
+      kind: "product",
+      productId: p.productId,
+      listingId: p.listingId,
+      marketplace: p.marketplace,
+      url: p.url,
+    },
+    price: p.price,
+  });
+}
+
+interface PersistedItem {
+  category: string;
+  colorHex: string;
+  product?: ProductRef;
+}
+
 interface Persisted {
-  items: { category: string; colorHex: string }[];
+  items: PersistedItem[];
   body: BodyParams;
   appearance: Appearance;
   quality: Quality;
@@ -85,10 +131,13 @@ function outfitFrom(p: Persisted | null): Outfit {
   if (!p) return starterOutfit();
   return p.items
     .filter((i) => isCategory(i.category) && /^#[0-9a-f]{6}$/i.test(i.colorHex))
-    .reduce(
-      (o, i) => equip(o, genericItem(i.category as Category, i.colorHex)).outfit,
-      emptyOutfit,
-    );
+    .reduce((o, i) => {
+      const item =
+        i.product && isCategory(i.product.category)
+          ? productItem(i.product, i.colorHex)
+          : genericItem(i.category as Category, i.colorHex);
+      return equip(o, item).outfit;
+    }, emptyOutfit);
 }
 
 export const outfitStore = createOutfitStore(emptyOutfit);
@@ -143,25 +192,52 @@ export const useView = create<ViewState>()((set, get) => ({
   },
 }));
 
+/** Save the current look + avatar to this device now. */
+export function persistNow(): void {
+  const v = useView.getState();
+  if (!v.hydrated) return;
+  const items: PersistedItem[] = Object.values(
+    outfitStore.getState().history.present.items,
+  ).flatMap((i): PersistedItem[] => {
+    if (i.source.kind === "generic")
+      return [{ category: i.garment.category, colorHex: i.colorHex }];
+    if (i.source.kind === "product" && i.source.url && i.source.marketplace) {
+      const product: ProductRef = {
+        productId: i.source.productId,
+        title: i.garment.name,
+        category: i.garment.category,
+        colors: [],
+        marketplace: i.source.marketplace,
+        listingId: i.source.listingId ?? i.source.productId,
+        url: i.source.url,
+        price: i.price,
+      };
+      return [{ category: i.garment.category, colorHex: i.colorHex, product }];
+    }
+    return [];
+  });
+  const data: Persisted = { items, body: v.body, appearance: v.appearance, quality: v.quality };
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch {
+    /* storage unavailable (private mode): the look lasts for this session */
+  }
+}
+
 /** Save the current look + avatar to this device whenever either changes. */
 export function startPersistence(): () => void {
-  const save = () => {
-    const v = useView.getState();
-    if (!v.hydrated) return;
-    const items = Object.values(outfitStore.getState().history.present.items)
-      .filter((i) => i.source.kind === "generic")
-      .map((i) => ({ category: i.garment.category, colorHex: i.colorHex }));
-    const data: Persisted = { items, body: v.body, appearance: v.appearance, quality: v.quality };
-    try {
-      localStorage.setItem(KEY, JSON.stringify(data));
-    } catch {
-      /* storage unavailable (private mode): the look lasts for this session */
-    }
-  };
+  const save = () => persistNow();
   const a = outfitStore.subscribe(save);
   const b = useView.subscribe(save);
   return () => {
     a();
     b();
   };
+}
+
+/** Put a searched product on the avatar (loading the saved look first so it isn't overwritten). */
+export function tryOn(p: ProductRef): void {
+  useView.getState().hydrate();
+  outfitStore.getState().equip(productItem(p));
+  persistNow();
 }

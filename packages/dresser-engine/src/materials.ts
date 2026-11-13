@@ -38,8 +38,12 @@ export function fabric(kind: MaterialKind, hex: string, highlighted = false): Me
       sheenColor: new Color("#ffffff"),
       clearcoat: p.clearcoat ?? 0,
       side: DoubleSide,
-      emissive: new Color(highlighted ? "#d6ff3d" : "#000000"),
-      emissiveIntensity: highlighted ? 0.12 : 0,
+      // brighten the garment's own colour when selected; a coloured glow would swamp dark fabrics
+      emissive: new Color(highlighted ? hex : "#000000").lerp(
+        new Color("#ffffff"),
+        highlighted ? 0.35 : 0,
+      ),
+      emissiveIntensity: highlighted ? 0.22 : 0,
     });
     cache.set(key, m);
   }

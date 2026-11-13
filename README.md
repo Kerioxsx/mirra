@@ -8,9 +8,10 @@ clothing search engine, price comparison, an AI personal stylist and a digital w
 results, the dresser and the stylist share one outfit model, so finding a piece, seeing it on you
 and building an outfit happen together.
 
-> **Status: Phase 1 (foundation) complete, plus an early 3D dresser.** Accounts, the style profile
-> and the 3D dresser work today on web and desktop. Marketplace search, the AI stylist and the
-> wardrobe are next. They're designed and stubbed honestly in the UI, with no fake data.
+> **Status: Phase 1 complete; Phase 2 under way with Taobao first.** Accounts, the style profile,
+> the 3D dresser and marketplace search work on web and desktop. The Taobao connector (official
+> overseas affiliate API) is built and goes live once credentials are configured; see
+> [docs/architecture/taobao.md](docs/architecture/taobao.md). The AI stylist and wardrobe are next.
 > See [the roadmap](docs/development/roadmap.md).
 
 ## What works today
@@ -24,6 +25,11 @@ and building an outfit happen together.
 - **Accounts on web and desktop.** Register, sign in, sessions that survive reloads (rotating refresh
   tokens; httpOnly cookie on web, OS keychain on desktop), profile, style preferences and account
   deletion.
+- **Search, Taobao first.** One search fans out to every connected marketplace. Taobao queries are
+  translated to Chinese, results come back with English titles. Prices are converted (≈, at ECB
+  rates), delivered cost is estimated without inventing unknowns, and every listing is labelled:
+  brand store, look-alike or replica. "Try on" puts any result on your avatar as a labelled
+  approximate preview.
 - **Honest marketplace catalog.** The API reports which marketplaces are live, planned, or blocked
   pending a partnership. The research behind each status is in
   [marketplaces.md](docs/architecture/marketplaces.md).
@@ -68,9 +74,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations) | `cd apps/backend && uv run pytest` | 25 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 50 |
 | Shared packages (Vitest) | `pnpm test` | 29 |
-| End-to-end (static export + API + Postgres, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 11 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 13 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated
@@ -81,7 +87,7 @@ types match the backend), `ruff`, `mypy --strict`, `alembic check`.
 - [Architecture overview](docs/architecture/overview.md)
 - [Decisions (ADRs)](docs/adr/README.md)
 - [Risks & dependencies](docs/architecture/risks.md)
-- [Marketplace access research](docs/architecture/marketplaces.md)
+- [Marketplace access research](docs/architecture/marketplaces.md) · [**Taobao integration**](docs/architecture/taobao.md)
 - [3D avatar & garment strategy](docs/architecture/3d-asset-strategy.md)
 - [Database](docs/architecture/database.md) · [AI workflows](docs/architecture/ai-workflows.md) · [API](docs/api/README.md)
 - [Setup](docs/development/setup.md) · [Conventions](docs/development/conventions.md) · [Roadmap](docs/development/roadmap.md) · [Agents & task breakdown](docs/development/agents.md)

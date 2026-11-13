@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from functools import lru_cache
 from typing import Literal
 
@@ -42,6 +43,28 @@ class Settings(BaseSettings):
     ebay_marketplace_id: str = "EBAY_US"
     ebay_api_base: str = "https://api.ebay.com"
     demo_connector_enabled: bool = True
+
+    # Taobao affiliate, overseas publishers (taobao.ovs.tbk.* via the TOP router).
+    taobao_app_key: str | None = None
+    taobao_app_secret: SecretStr | None = None
+    taobao_adzone_id: str | None = None
+    taobao_gateway: str = "https://eco.taobao.com/router/rest"
+    taobao_sign_method: Literal["md5", "hmac", "hmac-sha256"] = "md5"
+    taobao_language: Literal["en_US", "zh_CN"] = "en_US"
+    taobao_translate_queries: bool = True
+    # Taobao Global Open Platform (cross-border distributors). Client ready; wired after approval.
+    taobao_global_app_key: str | None = None
+    taobao_global_app_secret: SecretStr | None = None
+
+    # Prices & landed cost
+    fx_source: Literal["ecb", "none"] = "ecb"
+    forwarding_rate_per_kg: Decimal | None = None
+    forwarding_currency: str = "USD"
+    search_timeout_seconds: float = 8.0
+
+    @property
+    def taobao_configured(self) -> bool:
+        return bool(self.taobao_app_key and self.taobao_app_secret and self.taobao_adzone_id)
 
     @field_validator("jwt_secret")
     @classmethod

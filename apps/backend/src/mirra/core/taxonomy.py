@@ -92,6 +92,9 @@ class Authenticity(StrEnum):
     authenticated = "authenticated"  # marketplace authentication programme
     seller_claimed = "seller_claimed"  # seller says authentic, not verified
     unverified = "unverified"
+    # Legitimate look-alike: the listing says it's "the same style" (同款 / dupe) without
+    # claiming to be the brand. Shown as an alternative, never as the branded product.
+    style_alternative = "style_alternative"
     replica_advertised = "replica_advertised"  # listing itself says replica/rep/1:1
 
 

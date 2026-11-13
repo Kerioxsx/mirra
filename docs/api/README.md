@@ -34,10 +34,11 @@ CI fails if they drift (`pnpm check:api`).
 | GET | `/api/v1/users/me/preferences` | bearer | Style profile |
 | PUT | `/api/v1/users/me/preferences` | bearer | Replace style profile (validated: currency, country, budget order, enum values) |
 | GET | `/api/v1/marketplaces` | — | Tracked marketplaces with live status and connector capabilities |
+| GET | `/api/v1/search` | optional bearer | Search all live connectors. Params: `q`, `marketplace` (repeatable), `sort` (`relevance`/`price_asc`/`price_desc`), `price_min`, `price_max`, `category`, `currency`, `ship_to`, `page`, `page_size`. Returns results (listing + converted price + landed cost), per-marketplace status (`ok`/`error`/`timeout`/`not_configured`/`blocked`, with the query actually sent, e.g. Chinese for Taobao) and the FX source/date. Signed-in users get their profile's currency/ship-to and a search-history entry. 60/min per IP. |
 
 ## Planned (by phase)
 
-- **Phase 2:** `GET /search`, `GET /products/{id}`, `GET /products/{id}/offers`, `POST /saved`,
+- **Phase 2 (remaining):** `GET /products/{id}`, `GET /products/{id}/offers`, `POST /saved`,
   `GET /history`.
 - **Phase 3:** `POST /uploads`, `DELETE /uploads/{id}`, `POST /visual-search`.
 - **Phase 4:** `POST /stylist/outfits`, `POST /stylist/chat`.

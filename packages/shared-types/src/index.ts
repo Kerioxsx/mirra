@@ -17,6 +17,14 @@ export type RenderQuality = Schemas["RenderQuality"];
 export type MarketplaceInfo = Schemas["MarketplaceInfo"];
 export type ConnectorCapabilities = Schemas["ConnectorCapabilities"];
 export type MarketplaceStatus = Schemas["MarketplaceStatus"];
+export type Money = Schemas["Money"];
+export type NormalizedListing = Schemas["NormalizedListing"];
+export type LandedCost = Schemas["LandedCost"];
+export type CostComponent = Schemas["CostComponent"];
+export type SearchResult = Schemas["SearchResult"];
+export type SearchResponse = Schemas["SearchResponse"];
+export type MarketplaceSearchStatus = Schemas["MarketplaceSearchStatus"];
+export type Authenticity = Schemas["Authenticity"];
 
 type TaxonomyData = typeof taxonomyData;
 

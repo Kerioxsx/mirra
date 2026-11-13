@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { FIDELITY_LABELS, type Fidelity } from "@mirra/garment-system";
+import type { Authenticity } from "@mirra/shared-types";
 import { cn } from "./cn";
 
 type Tone = "neutral" | "accent" | "outline" | "warning" | "danger" | "success" | "stage";
@@ -59,17 +60,21 @@ export function FidelityBadge({ fidelity, onStage }: { fidelity: Fidelity; onSta
   );
 }
 
-export type Authenticity =
-  "brand_direct" | "authenticated" | "seller_claimed" | "unverified" | "replica_advertised";
+export type { Authenticity };
 
 const AUTH: Record<Authenticity, { label: string; tone: Tone }> = {
   brand_direct: { label: "Brand / authorized", tone: "success" },
   authenticated: { label: "Authenticated", tone: "success" },
   seller_claimed: { label: "Seller says authentic", tone: "neutral" },
   unverified: { label: "Unverified", tone: "outline" },
+  style_alternative: { label: "Look-alike, not the brand", tone: "warning" },
   replica_advertised: { label: "Listed as replica", tone: "danger" },
 };
 
-export function AuthenticityBadge({ value }: { value: Authenticity }) {
-  return <Badge tone={AUTH[value].tone}>{AUTH[value].label}</Badge>;
+export function AuthenticityBadge({ value, reasons }: { value: Authenticity; reasons?: string[] }) {
+  return (
+    <Badge tone={AUTH[value].tone} title={reasons?.length ? reasons.join("\n") : undefined}>
+      {AUTH[value].label}
+    </Badge>
+  );
 }

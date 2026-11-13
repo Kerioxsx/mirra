@@ -10,6 +10,7 @@ os.environ.setdefault(
 )
 os.environ.setdefault("MIRRA_JWT_SECRET", "test-secret-test-secret-test-secret-0123")
 os.environ["MIRRA_REDIS_URL"] = ""  # in-memory rate limiting keeps tests isolated
+os.environ["MIRRA_FX_SOURCE"] = "none"  # tests never call the ECB; they inject fixed rates
 
 from collections.abc import AsyncIterator
 from pathlib import Path
@@ -17,6 +18,7 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
@@ -60,8 +62,12 @@ async def _dispose() -> AsyncIterator[None]:
 
 
 @pytest.fixture
-async def client() -> AsyncIterator[AsyncClient]:
-    app = create_app()
+def app() -> FastAPI:
+    return create_app()
+
+
+@pytest.fixture
+async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c
 

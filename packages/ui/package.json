@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@mirra/garment-system": "workspace:*",
-    "clsx": "2.1.1"
+    "clsx": "2.1.1",
+    "@mirra/shared-types": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19"

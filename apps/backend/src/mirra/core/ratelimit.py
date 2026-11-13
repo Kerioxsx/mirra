@@ -56,13 +56,17 @@ def client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
-def rate_limit(scope: str) -> Callable[[Request], Awaitable[None]]:
-    """FastAPI dependency factory limiting a route per client IP."""
+def rate_limit(
+    scope: str, limit: int | None = None, window: int | None = None
+) -> Callable[[Request], Awaitable[None]]:
+    """FastAPI dependency factory limiting a route per client IP (defaults: the auth limits)."""
 
     async def _dep(request: Request) -> None:
         s = get_settings()
         ok = await get_limiter().hit(
-            f"{scope}:{client_ip(request)}", s.auth_rate_limit, s.auth_rate_window_seconds
+            f"{scope}:{client_ip(request)}",
+            limit or s.auth_rate_limit,
+            window or s.auth_rate_window_seconds,
         )
         if not ok:
             raise RateLimited("Too many attempts. Try again shortly.")

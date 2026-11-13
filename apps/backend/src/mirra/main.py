@@ -18,6 +18,8 @@ from mirra.core.health import router as health_router
 from mirra.modules.auth.router import router as auth_router
 from mirra.modules.marketplaces.registry import build_registry
 from mirra.modules.marketplaces.router import router as marketplaces_router
+from mirra.modules.pricing.fx import EcbFxProvider, FxProvider, StaticFxProvider
+from mirra.modules.search.router import router as search_router
 from mirra.modules.users.router import router as users_router
 
 API_PREFIX = "/api/v1"
@@ -29,10 +31,15 @@ def _operation_id(route: APIRoute) -> str:
     return f"{tag}_{route.name}"
 
 
+def build_fx() -> FxProvider:
+    return EcbFxProvider() if get_settings().fx_source == "ecb" else StaticFxProvider(None)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     get_settings().validate_for_runtime()
-    app.state.registry = build_registry()
+    app.state.fx = build_fx()
+    app.state.registry = build_registry(app.state.fx)
     yield
     await app.state.registry.aclose()
     await dispose_engine()
@@ -51,7 +58,8 @@ def create_app() -> FastAPI:
         redoc_url=None,
     )
     # Present before startup so tools that skip the lifespan (OpenAPI export) still work.
-    app.state.registry = build_registry()
+    app.state.fx = build_fx()
+    app.state.registry = build_registry(app.state.fx)
 
     app.add_middleware(
         CORSMiddleware,
@@ -79,7 +87,7 @@ def create_app() -> FastAPI:
     install_error_handlers(app)
     _document_error_envelope(app)
     app.include_router(health_router)
-    for router in (auth_router, users_router, marketplaces_router):
+    for router in (auth_router, users_router, marketplaces_router, search_router):
         app.include_router(router, prefix=API_PREFIX)
     return app
 

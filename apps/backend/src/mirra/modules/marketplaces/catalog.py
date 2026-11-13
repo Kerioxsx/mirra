@@ -22,6 +22,15 @@ class CatalogEntry:
 
 CATALOG: tuple[CatalogEntry, ...] = (
     CatalogEntry(
+        "taobao",
+        "Taobao",
+        "https://world.taobao.com",
+        IntegrationType.official_api,
+        MarketplaceStatus.planned,
+        "Official overseas Taobao affiliate API (English titles, local prices, Tmall included). "
+        "Live when MIRRA_TAOBAO_APP_KEY / _APP_SECRET / _ADZONE_ID are set.",
+    ),
+    CatalogEntry(
         "ebay",
         "eBay",
         "https://www.ebay.com",
@@ -84,13 +93,5 @@ CATALOG: tuple[CatalogEntry, ...] = (
         IntegrationType.partner_api,
         MarketplaceStatus.blocked,
         "No official public API; partnership required.",
-    ),
-    CatalogEntry(
-        "taobao",
-        "Taobao",
-        "https://www.taobao.com",
-        IntegrationType.partner_api,
-        MarketplaceStatus.blocked,
-        "Taobao Open Platform needs permission approval and China entity verification.",
     ),
 )

@@ -16,25 +16,36 @@ the feature is implemented **and** covered by passing tests.
 - [x] Next.js 16 static-export web app: navigation for all 8 sections, auth pages, settings
 - [x] Tauri 2 desktop shell using the same build; keychain commands with key allow-list; CSP
 - [x] Design system (`@mirra/ui`)
-- [x] Testing infrastructure: pytest (25), Vitest (29), Playwright e2e (11), cargo (2)
+- [x] Testing infrastructure: pytest, Vitest, Playwright e2e, cargo
 - [x] CI workflow (backend, frontend, e2e, desktop) — *written; first run happens on GitHub*
 - [x] **Ahead of plan:** 3D dresser spike — R3F studio, procedural mannequin with body/appearance
       controls, parametric garments for all 34 categories with layering, conflicts, recolour,
       undo/redo, camera presets, quality tiers, local persistence
 
-## Phase 2 — Shopping engine (weeks 3–5) · next
+## Phase 2 — Shopping engine (weeks 3–5) · **in progress (Taobao first)**
 
-- [ ] eBay Browse connector (OAuth client credentials, search, item, seller, aspects → sizes/colours,
-      shipping, condition mapping) with recorded-fixture tests
-- [ ] Demo connector (clearly labelled sample catalog, disabled in production)
-- [ ] Search service: query parsing, fan-out with timeouts, normalization, upsert of products and
-      listings, caching in Redis, search history
-- [ ] `/search`, `/products/{id}`, `/products/{id}/offers` endpoints
-- [ ] Discover UI: results grid, filters, sorting, product detail, marketplace attribution, link-out
-      tracking (shopping events)
-- [ ] Price comparison (exact match by GTIN/MPN/canonical key) and replica rules
-- [ ] "Try on" from a product → approximate garment in the dresser
-- [ ] Apply to affiliate networks (lead time)
+- [x] **Taobao connector**: overseas affiliate API (`taobao.ovs.tbk.material.item.optional`), TOP
+      signing verified against the published vector, documented response mapping, English titles,
+      Tmall detection, coupons, sales; EN→ZH fashion query translation; site from ship-to country
+- [x] **Taobao Global Open Platform client** (IOP signing verified, OAuth token create/refresh);
+      product endpoints wired after distributor approval
+- [x] Authenticity rules (English, Chinese and machine-translated vocabulary; official Tmall flagship
+      stores; "same style" look-alikes as a separate label, migration 0002)
+- [x] FX from ECB daily reference rates; landed-cost estimates (unknowns stay unknown)
+- [x] Demo connector (clearly labelled sample catalog, disabled in production)
+- [x] Search service: parallel fan-out with timeouts, partial results, per-marketplace status,
+      price sort that never ranks unknown prices as cheapest, search history for signed-in users
+- [x] `GET /api/v1/search`
+- [x] Discover UI: search, sort, currency, max price, result cards (attribution, seller, rating,
+      converted price, delivered-cost breakdown, authenticity reasons), affiliate disclosure
+- [x] "Try on" from a result → approximate garment in the dresser with the exact original price,
+      persisted on the device
+- [ ] **Live Taobao verification**: needs affiliate credentials (see taobao.md checklist)
+- [ ] Chinese size mapping
+- [ ] eBay Browse connector
+- [ ] Product detail page + offers comparison across marketplaces (exact-match by GTIN/MPN)
+- [ ] Persist listings + price history; Redis result cache
+- [ ] Shopping events (link-outs) → Shopping History page
 
 ## Phase 3 — Visual AI (weeks 6–7)
 

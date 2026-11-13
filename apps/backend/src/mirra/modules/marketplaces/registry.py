@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from mirra.core.config import get_settings
 from mirra.core.taxonomy import MarketplaceStatus
 from mirra.modules.marketplaces.base import (
     ConnectorCapabilities,
@@ -9,6 +10,10 @@ from mirra.modules.marketplaces.base import (
     MarketplaceInfo,
 )
 from mirra.modules.marketplaces.catalog import CATALOG
+from mirra.modules.marketplaces.connectors.demo import DemoConnector
+from mirra.modules.marketplaces.connectors.taobao.connector import TaobaoConnector
+from mirra.modules.marketplaces.connectors.taobao.top import TopClient
+from mirra.modules.pricing.fx import FxProvider
 
 
 class ConnectorRegistry:
@@ -62,6 +67,28 @@ class ConnectorRegistry:
             await conn.aclose()
 
 
-def build_registry() -> ConnectorRegistry:
-    """Phase 2 adds the eBay and demo connectors here, gated on configuration."""
-    return ConnectorRegistry()
+def build_registry(fx: FxProvider | None = None) -> ConnectorRegistry:
+    """Live connectors, each enabled only when its credentials are configured."""
+    s = get_settings()
+    connectors: list[MarketplaceConnector] = []
+    if s.taobao_configured:
+        assert s.taobao_app_key and s.taobao_app_secret and s.taobao_adzone_id
+        client = TopClient(
+            app_key=s.taobao_app_key,
+            app_secret=s.taobao_app_secret.get_secret_value(),
+            gateway=s.taobao_gateway,
+            sign_method=s.taobao_sign_method,
+            timeout=s.search_timeout_seconds,
+        )
+        connectors.append(
+            TaobaoConnector(
+                client=client,
+                adzone_id=s.taobao_adzone_id,
+                language=s.taobao_language,
+                fx=fx,
+                translate=s.taobao_translate_queries,
+            )
+        )
+    if s.demo_connector_enabled and not s.is_production:
+        connectors.append(DemoConnector())
+    return ConnectorRegistry(connectors)

@@ -28,11 +28,13 @@
 | **Independent stores (Shopify etc.)** | Per-store Storefront API tokens or the store's own affiliate feed, with permission. | Per store. | Long tail of independent labels. | Via `affiliate_feed` or per-store partnerships. Don't crawl. |
 | **Depop** | **Selling API** — an enterprise partner API for managing a seller's own listings/orders. Invite-only (`developers@depop.com`). Not a buyer-side search API. | No. | Excellent for Gen-Z secondhand. | **Blocked** — requires a partnership. Apply early; no connector until a buyer-side agreement exists. |
 | **Grailed** | No official public API. Third-party scraper services exist; they are unaffiliated and likely conflict with Grailed's terms. | No. | Excellent for designer/streetwear resale. | **Blocked** — partnership only. |
-| **Taobao / Tmall** | Taobao Open Platform (TOP). Product search APIs need permission approval; reports say access needs Chinese legal-entity and bank verification. Tmall Global apps are for Tmall Global sellers. Alibaba's affiliate programme (Taobao Union / Alimama) is the likelier path. | No (for overseas developers). | Massive, very price-competitive, Japanese/Chinese streetwear. | **Blocked for MVP.** Investigate a China-registered partner or an authorized agent with a contractual API. |
+| **Taobao / Tmall** | **Overseas Taobao affiliate API** (`taobao.ovs.tbk.material.item.optional`): keyword search, English titles, localized prices, affiliate links. **Taobao Global Open Platform** for distributors: image search, details, dropship orders. | Affiliate: publisher approval at pub.alimama.com. Global: company approval. | Massive, very price-competitive, Japanese/Chinese streetwear. | **Priority, connector built.** See [taobao.md](taobao.md). |
 | **Google Shopping** | No public shopping-search API for third parties (the Content API is for merchants managing their own products). Third-party SERP APIs exist; their terms vary. | — | — | Don't depend on it. |
 
 ## Plan
 
+0. **Now:** Taobao connector (overseas affiliate API) is built and wired into search;
+   live once credentials are configured. See [taobao.md](taobao.md).
 1. **Phase 2:** `ebay` connector (search, item, seller, images, sizes from
    aspects, price, shipping, availability) + a `demo` connector that serves a
    small, clearly labelled sample catalogue so development and tests run
@@ -40,8 +42,7 @@
 2. **Phase 2/3:** `affiliate_feed` connector framework (ingest → normalize →
    upsert products and listings → embed images). Apply to Awin/CJ/Rakuten as a
    publisher early, because approval takes weeks.
-3. **Phase 7:** Etsy, Amazon Creators API. Depop/Grailed/Taobao only with
-   signed agreements.
+3. **Phase 7:** Etsy, Amazon Creators API. Depop/Grailed only with signed agreements.
 
 ## Connector contract
 

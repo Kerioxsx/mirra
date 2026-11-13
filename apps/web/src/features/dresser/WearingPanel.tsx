@@ -85,7 +85,9 @@ function SelectedDetails({ slot }: { slot: SlotKey }) {
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[13px]">
         <dt className="text-muted">Product</dt>
         <dd className="text-ink-soft">
-          {item.source.kind === "product" ? item.source.productId : "Not linked to a product"}
+          {item.source.kind === "product"
+            ? (item.source.marketplace ?? "Linked product")
+            : "Not linked to a product"}
         </dd>
         <dt className="text-muted">Price</dt>
         <dd className="tabular text-ink-soft">
@@ -96,12 +98,23 @@ function SelectedDetails({ slot }: { slot: SlotKey }) {
               : "—"}
         </dd>
       </dl>
-      <Link
-        href="/discover/"
-        className="text-[13px] font-medium text-ink underline underline-offset-4"
-      >
-        Find the real thing in Discover
-      </Link>
+      {item.source.kind === "product" && item.source.url ? (
+        <a
+          href={item.source.url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className="text-[13px] font-medium text-ink underline underline-offset-4"
+        >
+          View the original listing ↗
+        </a>
+      ) : (
+        <Link
+          href="/discover/"
+          className="text-[13px] font-medium text-ink underline underline-offset-4"
+        >
+          Find the real thing in Discover
+        </Link>
+      )}
     </section>
   );
 }
