@@ -1,0 +1,67 @@
+@import "tailwindcss";
+@import "../../../../packages/ui/src/tokens.css";
+
+@source "../../../../packages/ui/src";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-paper: var(--mirra-paper);
+  --color-surface: var(--mirra-surface);
+  --color-surface-2: var(--mirra-surface-2);
+  --color-ink: var(--mirra-ink);
+  --color-ink-soft: var(--mirra-ink-soft);
+  --color-muted: var(--mirra-muted);
+  --color-line: var(--mirra-line);
+  --color-line-strong: var(--mirra-line-strong);
+  --color-volt: var(--mirra-volt);
+  --color-volt-ink: var(--mirra-volt-ink);
+  --color-ember: var(--mirra-ember);
+  --color-danger: var(--mirra-danger);
+  --color-warning: var(--mirra-warning);
+  --color-success: var(--mirra-success);
+  --color-stage: var(--mirra-stage);
+  --color-stage-2: var(--mirra-stage-2);
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-sans: "Inter Tight Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--mirra-paper);
+    color: var(--mirra-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .font-display {
+    font-variation-settings:
+      "opsz" 96,
+      "SOFT" 30;
+    letter-spacing: -0.02em;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    background: var(--mirra-volt);
+    color: var(--mirra-volt-ink);
+  }
+  input[type="range"] {
+    accent-color: var(--mirra-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

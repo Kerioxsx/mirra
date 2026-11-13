@@ -1,0 +1,34 @@
+{
+  "name": "mirra",
+  "private": true,
+  "description": "Mirra — AI fashion dresser: 3D virtual dressing room, AI stylist, universal clothing search and digital wardrobe.",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @mirra/web dev",
+    "dev:web": "pnpm --filter @mirra/web dev",
+    "dev:desktop": "pnpm --filter @mirra/desktop tauri dev",
+    "build": "pnpm -r --filter './packages/*' build && pnpm --filter @mirra/web build",
+    "build:desktop": "pnpm --filter @mirra/desktop tauri build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "pnpm --filter @mirra/web test:e2e",
+    "gen:api": "node scripts/gen-api-types.mjs",
+    "check:api": "node scripts/gen-api-types.mjs --check"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.14.0",
+    "openapi-typescript": "7.13.0",
+    "prettier": "3.10.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2"
+  }
+}

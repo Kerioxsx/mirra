@@ -1,0 +1,60 @@
+/*
+ * Mirra design tokens. Light = "Atelier" (paper, ink), dark = "Studio" (charcoal, chalk).
+ * One accent ("volt") is used sparingly: selection, focus, the active nav item.
+ * The 3D stage is always dark regardless of theme.
+ */
+:root {
+  --mirra-paper: #f3f0e8;
+  --mirra-surface: #fbfaf6;
+  --mirra-surface-2: #ebe7dc;
+  --mirra-ink: #131313;
+  --mirra-ink-soft: #3a3a37;
+  --mirra-muted: #6d6c66;
+  --mirra-line: rgb(19 19 19 / 0.1);
+  --mirra-line-strong: rgb(19 19 19 / 0.22);
+  --mirra-volt: #d6ff3d;
+  --mirra-volt-ink: #131313;
+  --mirra-ember: #e5531f;
+  --mirra-danger: #b42318;
+  --mirra-warning: #9a6b00;
+  --mirra-success: #2f7a3b;
+  --mirra-stage: #0c0c0e;
+  --mirra-stage-2: #17171a;
+  --mirra-radius: 14px;
+  --mirra-shadow: 0 1px 0 rgb(19 19 19 / 0.04), 0 12px 32px -16px rgb(19 19 19 / 0.25);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mirra-paper: #0e0e10;
+    --mirra-surface: #151518;
+    --mirra-surface-2: #1d1d21;
+    --mirra-ink: #f1efe8;
+    --mirra-ink-soft: #c9c6bd;
+    --mirra-muted: #8f8d86;
+    --mirra-line: rgb(241 239 232 / 0.09);
+    --mirra-line-strong: rgb(241 239 232 / 0.2);
+    --mirra-danger: #f97066;
+    --mirra-warning: #fdb022;
+    --mirra-success: #6ce9a6;
+    --mirra-shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --mirra-paper: #0e0e10;
+  --mirra-surface: #151518;
+  --mirra-surface-2: #1d1d21;
+  --mirra-ink: #f1efe8;
+  --mirra-ink-soft: #c9c6bd;
+  --mirra-muted: #8f8d86;
+  --mirra-line: rgb(241 239 232 / 0.09);
+  --mirra-line-strong: rgb(241 239 232 / 0.2);
+  --mirra-danger: #f97066;
+  --mirra-warning: #fdb022;
+  --mirra-success: #6ce9a6;
+  --mirra-shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 16px 40px -20px rgb(0 0 0 / 0.8);
+  color-scheme: dark;
+}
