@@ -19,7 +19,12 @@ from mirra.modules.agents.links import SourceLink, try_parse
 from mirra.modules.agents.schemas import PurchaseRoute
 from mirra.modules.marketplaces.base import Money, NormalizedListing
 from mirra.modules.pricing.fx import FxRates
-from mirra.modules.pricing.landed_cost import ExtraFee, ForwardingRate, estimate_landed_cost
+from mirra.modules.pricing.landed_cost import (
+    ExtraFee,
+    ForwardingRate,
+    LandedCost,
+    estimate_landed_cost,
+)
 
 AGENT_ID = "kakobuy"
 AGENT_NAME = "KakoBuy"
@@ -110,17 +115,23 @@ def kakobuy_route(
 
     landed = None
     if listing is not None and listing.price is not None:
-        landed = estimate_landed_cost(
-            price=listing.price,
-            target_currency=currency,
-            fx=fx,
-            domestic_shipping=listing.shipping.cost if listing.shipping else None,
-            domestic_shipping_label="Shipping within China (seller → KakoBuy warehouse)",
-            category=listing.category,
-            cross_border=True,
-            forwarding=forwarding,
-            extra_fees=_fees(listing, s),
-        )
+        price = listing.price
+
+        def estimate(target: str) -> LandedCost | None:
+            return estimate_landed_cost(
+                price=price,
+                target_currency=target,
+                fx=fx,
+                domestic_shipping=listing.shipping.cost if listing.shipping else None,
+                domestic_shipping_label="Shipping within China (seller → KakoBuy warehouse)",
+                category=listing.category,
+                cross_border=True,
+                forwarding=forwarding,
+                extra_fees=_fees(listing, s),
+            )
+
+        # without exchange rates, show the breakdown in the listing's own currency (exact) instead
+        landed = estimate(currency) or estimate(price.currency)
     return base.model_copy(
         update={"available": True, "url": build_link(source, s), "landed_cost": landed}
     )

@@ -34,6 +34,10 @@ and building an outfit happen together.
   listing with observed price history. "Similar & cheaper" finds the same look across connected
   marketplaces (replicas never suggested). Save pieces, and see searches and opened listings in a
   private, deletable Shopping History.
+- **Buy through KakoBuy.** Taobao, Tmall, Weidian and 1688 items can be bought via the KakoBuy
+  purchasing agent. Paste any link (or a KakoBuy link) into Discover, or use "Other ways to buy"
+  on a listing, with delivered cost from KakoBuy's published fees. Listings advertised as
+  replicas are never routed (KakoBuy prohibits counterfeits too).
 - **Saved outfits.** Save a look from the dresser to your account (basics plus real products with
   their prices) and reopen it on any device.
 - **Honest marketplace catalog.** The API reports which marketplaces are live, planned, or blocked
@@ -80,9 +84,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 66 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 91 |
 | Shared packages (Vitest) | `pnpm test` | 29 |
-| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 16 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 19 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated
@@ -93,7 +97,7 @@ types match the backend), `ruff`, `mypy --strict`, `alembic check`.
 - [Architecture overview](docs/architecture/overview.md)
 - [Decisions (ADRs)](docs/adr/README.md)
 - [Risks & dependencies](docs/architecture/risks.md)
-- [Marketplace access research](docs/architecture/marketplaces.md) · [**Taobao integration**](docs/architecture/taobao.md)
+- [Marketplace access research](docs/architecture/marketplaces.md) · [**Taobao integration**](docs/architecture/taobao.md) · [Purchasing agents (KakoBuy)](docs/architecture/purchase-agents.md)
 - [3D avatar & garment strategy](docs/architecture/3d-asset-strategy.md)
 - [Database](docs/architecture/database.md) · [AI workflows](docs/architecture/ai-workflows.md) · [API](docs/api/README.md)
 - [Setup](docs/development/setup.md) · [Conventions](docs/development/conventions.md) · [Roadmap](docs/development/roadmap.md) · [Agents & task breakdown](docs/development/agents.md)

@@ -124,6 +124,16 @@ def test_route_costs_follow_kakobuys_published_fees() -> None:
     assert route.terms_checked == "2026-11-15"
 
 
+def test_route_falls_back_to_listing_currency_without_rates() -> None:
+    route = kakobuy_route(_listing(), get_settings(), currency="USD", fx=None)
+    assert route is not None and route.landed_cost is not None
+    assert route.landed_cost.currency == "CNY"
+    labels = {c.label: c for c in route.landed_cost.components}
+    assert labels["Item"].amount.amount == Decimal("239.00") and not labels["Item"].estimate
+    assert labels["Customs declaration (per parcel)"].amount.amount == Decimal("8.00")
+    assert route.landed_cost.total_known.amount == Decimal("247.00")
+
+
 def test_route_refuses_replicas_demo_and_missing_links() -> None:
     s = get_settings()
     replica = kakobuy_route(_listing(authenticity=Authenticity.replica_advertised), s)

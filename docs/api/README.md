@@ -35,7 +35,7 @@ CI fails if they drift (`pnpm check:api`).
 | PUT | `/api/v1/users/me/preferences` | bearer | Replace style profile (validated: currency, country, budget order, enum values) |
 | GET | `/api/v1/marketplaces` | — | Tracked marketplaces with live status and connector capabilities |
 | GET | `/api/v1/search` | optional bearer | Search all live connectors. Params: `q`, `marketplace` (repeatable), `sort` (`relevance`/`price_asc`/`price_desc`), `price_min`, `price_max`, `category`, `currency`, `ship_to`, `page`, `page_size`. Returns results (listing + converted price + landed cost), per-marketplace status (`ok`/`error`/`timeout`/`not_configured`/`blocked`, with the query actually sent, e.g. Chinese for Taobao) and the FX source/date. Signed-in users get their profile's currency/ship-to and a search-history entry. 60/min per IP. |
-| GET | `/api/v1/listings/{id}` | optional bearer | A stored listing priced for the shopper (`currency`, `ship_to` or profile), with landed cost, Mirra's observed price history, freshness (`fetched_at`, `stale`) and `saved` state. |
+| GET | `/api/v1/listings/{id}` | optional bearer | A stored listing priced for the shopper (`currency`, `ship_to` or profile), with landed cost, Mirra's observed price history, freshness (`fetched_at`, `stale`) `saved` state and `purchase_routes` (e.g. KakoBuy, with delivered cost or the reason it's unavailable). |
 | GET | `/api/v1/listings/{id}/alternatives` | optional bearer | Deal finder: similar pieces across live marketplaces, cheapest first, with a heuristic `match_score` (estimate), reasons and `savings`. Replica listings are excluded and counted in `excluded_replicas`. 30/min per IP. |
 | GET | `/api/v1/saved` | bearer | Saved listings, newest first |
 | POST | `/api/v1/saved` | bearer | Save a stored listing (`listing_id`); idempotent |
@@ -43,6 +43,7 @@ CI fails if they drift (`pnpm check:api`).
 | POST | `/api/v1/shopping/events` | bearer | Record `viewed` or `clicked_out` for a listing |
 | GET | `/api/v1/shopping/history` | bearer | Recent searches and listing events (50 each) |
 | DELETE | `/api/v1/shopping/history` | bearer | Delete all searches and events (saved items are kept) |
+| POST | `/api/v1/links/resolve` | — | Recognise a pasted Taobao/Tmall/Weidian/1688/KakoBuy link (no network calls): source, item id, canonical link, purchasing-agent routes and any stored Mirra listing for the same item. 422 with a shopper-facing reason for unsupported or short links. 60/min per IP. |
 | GET | `/api/v1/outfits` | bearer | Saved outfits with items, listing summaries and per-currency totals |
 | POST | `/api/v1/outfits` | bearer | Save a look: `{name, items: [{category, color_hex, listing_id?}]}`. Region/layer come from the backend taxonomy; slot conflicts and one-piece conflicts are rejected (422); every `listing_id` must be a stored listing of the same category. Totals are computed from stored listing prices. |
 | GET | `/api/v1/outfits/{id}` | bearer | One outfit (404 if not yours) |

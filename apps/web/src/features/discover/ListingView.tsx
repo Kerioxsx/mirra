@@ -15,6 +15,7 @@ import { recordEvent } from "./events";
 import { formatMoney, marketplaceName } from "./format";
 import { CostBreakdown, Price, ResultCard } from "./ResultCard";
 import { useSaved } from "./useSaved";
+import { RouteCard } from "./WaysToBuy";
 
 type Load<T> =
   { status: "loading" } | { status: "error"; message: string } | { status: "ready"; data: T };
@@ -249,6 +250,19 @@ export function ListingView() {
             )}
           </div>
           <CostBreakdown result={r} open />
+          {d.purchase_routes?.length ? (
+            <section aria-labelledby="ways-h" className="flex flex-col gap-2">
+              <h2
+                id="ways-h"
+                className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted"
+              >
+                Other ways to buy from abroad
+              </h2>
+              {d.purchase_routes.map((route) => (
+                <RouteCard key={route.id} route={route} listingId={d.id} />
+              ))}
+            </section>
+          ) : null}
           <p className="text-[12px] text-muted">
             Price as of {dateLabel(d.fetched_at)} from {d.marketplace_name}.
             {d.stale

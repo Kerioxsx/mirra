@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Page, PageHeader } from "@/components/Page";
+import { LinkPaste } from "@/features/discover/LinkPaste";
 import { MarketplaceGrid } from "@/features/discover/MarketplaceGrid";
 import { SearchView } from "@/features/discover/SearchView";
 
@@ -16,6 +17,9 @@ export default function DiscoverPage() {
       <Suspense>
         <SearchView />
       </Suspense>
+      <div className="mt-10">
+        <LinkPaste />
+      </div>
       <section aria-labelledby="mk-h" className="mt-16">
         <h2 id="mk-h" className="mb-5 font-display text-[30px] text-ink">
           Marketplaces

@@ -35,6 +35,8 @@ export type ShoppingHistory = Schemas["ShoppingHistory"];
 export type OutfitOut = Schemas["OutfitOut"];
 export type OutfitItemOut = Schemas["OutfitItemOut"];
 export type OutfitIn = Schemas["OutfitIn"];
+export type PurchaseRoute = Schemas["PurchaseRoute"];
+export type LinkResolution = Schemas["LinkResolution"];
 
 type TaxonomyData = typeof taxonomyData;
 

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Heart, Shirt, Star } from "lucide-react";
-import type { SearchResult } from "@mirra/shared-types";
+import type { LandedCost, SearchResult } from "@mirra/shared-types";
 import { AuthenticityBadge, Badge, buttonClasses, cn } from "@mirra/ui";
 import { recordEvent } from "./events";
 import { formatMoney } from "./format";
@@ -50,6 +50,28 @@ export function Price({ result }: { result: SearchResult }) {
   );
 }
 
+export function LandedCostTable({ lc }: { lc: LandedCost }) {
+  return (
+    <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+      {lc.components.map((c) => (
+        <div key={c.label} className="contents">
+          <dt className="text-ink-soft">
+            {c.label}
+            {c.note ? <span className="block text-[11px] text-muted">{c.note}</span> : null}
+          </dt>
+          <dd className="tabular text-right text-ink">
+            {c.amount ? (
+              formatMoney(c.amount, { approx: c.estimate })
+            ) : (
+              <span className="text-muted">Unknown</span>
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function CostBreakdown({ result, open }: { result: SearchResult; open?: boolean }) {
   const lc = result.landed_cost;
   const l = result.listing;
@@ -68,25 +90,7 @@ export function CostBreakdown({ result, open }: { result: SearchResult; open?: b
         <span className="float-right text-muted group-open/details:rotate-180">⌄</span>
       </summary>
       <div className="mt-2 flex flex-col gap-2 border-t border-line pt-2">
-        {lc ? (
-          <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
-            {lc.components.map((c) => (
-              <div key={c.label} className="contents">
-                <dt className="text-ink-soft">
-                  {c.label}
-                  {c.note ? <span className="block text-[11px] text-muted">{c.note}</span> : null}
-                </dt>
-                <dd className="tabular text-right text-ink">
-                  {c.amount ? (
-                    formatMoney(c.amount, { approx: c.estimate })
-                  ) : (
-                    <span className="text-muted">Unknown</span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
+        {lc ? <LandedCostTable lc={lc} /> : null}
         {lc?.fx_as_of ? (
           <p className="text-[11px] text-muted">
             Converted with ECB reference rates of {lc.fx_as_of}.

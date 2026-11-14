@@ -96,6 +96,13 @@ rather than guessing. Expect small adjustments after the first live call.
    (`distributor.taobao.global` → `open.taobao.global`). Once approved, set
    `MIRRA_TAOBAO_GLOBAL_APP_KEY` / `_APP_SECRET` and the product endpoints get wired.
 
+## Buying through an agent
+
+Taobao listings can also be bought through **KakoBuy**. Mirra shows a KakoBuy route on Taobao
+listing pages when the item's original link is known, and shoppers can paste any Taobao, Tmall,
+Weidian or 1688 link into Discover. Listings advertised as replicas are never routed. See
+[purchase-agents.md](purchase-agents.md).
+
 ## Next steps (engineering)
 
 - Chinese size mapping (Chinese sizes run small; 170/88A style codes → S/M/L).

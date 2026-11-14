@@ -50,6 +50,9 @@ the feature is implemented **and** covered by passing tests.
 - [x] Deal finder (Workflow C): similar & cheaper across live marketplaces, match-score estimates,
       savings, replicas excluded
 - [x] Saved products; shopping events (views, click-outs) → Shopping History page, deletable
+- [x] **KakoBuy purchasing agent**: verified item-link format, offline link parser (Taobao, Tmall,
+      Weidian, 1688, KakoBuy, deep links), delivered cost via KakoBuy from its published fees,
+      replica listings refused, paste-a-link in Discover. See purchase-agents.md
 - [ ] Exact-product offers by GTIN/MPN (when a connector provides identifiers)
 
 ## Phase 3 — Visual AI (weeks 6–7)
