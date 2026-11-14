@@ -38,3 +38,12 @@ Thumbs.db
 
 # local object storage / uploads
 .data/
+
+# Third-party agent skills: restore with `npx skills experimental_install` and
+# `npx impeccable install --project --providers=claude --no-hooks` (see docs/development/setup.md)
+.claude/skills/
+.claude/agents/
+.impeccable/
+# taste-skill working state (deal history, gate rounds, screenshots)
+.taste-skill/
+apps/site/shots/
