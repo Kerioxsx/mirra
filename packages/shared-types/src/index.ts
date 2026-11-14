@@ -25,6 +25,16 @@ export type SearchResult = Schemas["SearchResult"];
 export type SearchResponse = Schemas["SearchResponse"];
 export type MarketplaceSearchStatus = Schemas["MarketplaceSearchStatus"];
 export type Authenticity = Schemas["Authenticity"];
+export type ListingDetail = Schemas["ListingDetail"];
+export type ListingSummary = Schemas["ListingSummary"];
+export type Alternative = Schemas["Alternative"];
+export type AlternativesResponse = Schemas["AlternativesResponse"];
+export type PricePoint = Schemas["PricePoint"];
+export type SavedItem = Schemas["SavedItem"];
+export type ShoppingHistory = Schemas["ShoppingHistory"];
+export type OutfitOut = Schemas["OutfitOut"];
+export type OutfitItemOut = Schemas["OutfitItemOut"];
+export type OutfitIn = Schemas["OutfitIn"];
 
 type TaxonomyData = typeof taxonomyData;
 

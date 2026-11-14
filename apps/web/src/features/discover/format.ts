@@ -21,3 +21,23 @@ export function amountString(m: Money): string {
   const n = typeof m.amount === "number" ? m.amount : Number(m.amount);
   return n.toFixed(2);
 }
+
+const MARKETPLACE_NAMES: Record<string, string> = {
+  taobao: "Taobao",
+  ebay: "eBay",
+  etsy: "Etsy",
+  amazon: "Amazon",
+  asos: "ASOS",
+  nike: "Nike",
+  adidas: "adidas",
+  depop: "Depop",
+  grailed: "Grailed",
+  demo: "Sample catalog (demo)",
+};
+
+export function marketplaceName(id: string): string {
+  return MARKETPLACE_NAMES[id] ?? id;
+}
+
+export const isUuid = (v: string | undefined | null): v is string =>
+  !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);

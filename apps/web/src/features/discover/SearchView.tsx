@@ -4,10 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Camera, Search } from "lucide-react";
 import type { MarketplaceSearchStatus, SearchResult } from "@mirra/shared-types";
-import { isCategory } from "@mirra/shared-types";
 import { Button, cn, Spinner } from "@mirra/ui";
 import { tryOn } from "@/features/dresser/state";
+import { toProductRef } from "./ListingView";
 import { ResultCard } from "./ResultCard";
+import { useSaved } from "./useSaved";
 import { useSearch, type SearchInput } from "./useSearch";
 
 const SUGGESTIONS = [
@@ -99,6 +100,7 @@ export function SearchView() {
     [initialQ, sort, currency, priceMax],
   );
   const state = useSearch(input);
+  const saved = useSaved();
   const data =
     state.status === "ready" ? state.data : state.status === "loading" ? state.previous : null;
   const names = Object.fromEntries((data?.marketplaces ?? []).map((m) => [m.id, m.name]));
@@ -113,21 +115,10 @@ export function SearchView() {
     submit(draft);
   }
   function onTryOn(r: SearchResult) {
-    const l = r.listing;
-    if (!l.category || !isCategory(l.category)) return;
-    tryOn({
-      productId: `${l.marketplace_id}:${l.external_id}`,
-      title: l.title,
-      category: l.category,
-      colors: l.colors ?? [],
-      marketplace: names[l.marketplace_id] ?? l.marketplace_id,
-      listingId: l.external_id,
-      url: l.url,
-      price: l.price
-        ? { amount: Number(l.price.amount).toFixed(2), currency: l.price.currency }
-        : null,
-    });
-    setTried(l.title);
+    const ref = toProductRef(r, names[r.listing.marketplace_id] ?? r.listing.marketplace_id);
+    if (!ref) return;
+    tryOn(ref);
+    setTried(r.listing.title);
   }
 
   return (
@@ -260,6 +251,12 @@ export function SearchView() {
                     result={r}
                     marketplaceName={names[r.listing.marketplace_id] ?? r.listing.marketplace_id}
                     onTryOn={onTryOn}
+                    saved={!!r.listing_id && saved.ids.has(r.listing_id)}
+                    onToggleSave={
+                      saved.canSave
+                        ? (res) => res.listing_id && void saved.toggle(res.listing_id)
+                        : undefined
+                    }
                   />
                 </li>
               ))}

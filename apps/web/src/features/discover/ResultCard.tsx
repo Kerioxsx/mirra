@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
-import { ArrowUpRight, Shirt, Star } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Heart, Shirt, Star } from "lucide-react";
 import type { SearchResult } from "@mirra/shared-types";
 import { AuthenticityBadge, Badge, buttonClasses, cn } from "@mirra/ui";
+import { recordEvent } from "./events";
 import { formatMoney } from "./format";
 
-function Price({ result }: { result: SearchResult }) {
+export function Price({ result }: { result: SearchResult }) {
   const l = result.listing;
   const converted =
     result.converted_price && l.price && result.converted_price.currency !== l.price.currency;
@@ -48,12 +50,12 @@ function Price({ result }: { result: SearchResult }) {
   );
 }
 
-function CostBreakdown({ result }: { result: SearchResult }) {
+export function CostBreakdown({ result, open }: { result: SearchResult; open?: boolean }) {
   const lc = result.landed_cost;
   const l = result.listing;
   if (!lc && !l.authenticity_reasons?.length && !l.promotion_tags?.length) return null;
   return (
-    <details className="group/details rounded-xl bg-surface-2 px-3 py-2 text-[12.5px]">
+    <details open={open} className="group/details rounded-xl bg-surface-2 px-3 py-2 text-[12.5px]">
       <summary className="cursor-pointer select-none list-none font-medium text-ink marker:hidden">
         {lc ? (
           <span className="tabular">
@@ -118,10 +120,15 @@ export function ResultCard({
   result,
   marketplaceName,
   onTryOn,
+  saved = false,
+  onToggleSave,
 }: {
   result: SearchResult;
   marketplaceName: string;
   onTryOn: (result: SearchResult) => void;
+  saved?: boolean;
+  /** Undefined for guests: the heart then links to sign-in. */
+  onToggleSave?: (result: SearchResult) => void;
 }) {
   const l = result.listing;
   const [imgFailed, setImgFailed] = useState(false);
@@ -171,7 +178,16 @@ export function ResultCard({
           className="line-clamp-2 text-[14px] font-medium leading-snug text-ink"
           title={l.original_title ?? l.title}
         >
-          {l.title}
+          {result.listing_id ? (
+            <Link
+              href={`/discover/listing/?id=${result.listing_id}`}
+              className="hover:underline hover:underline-offset-4"
+            >
+              {l.title}
+            </Link>
+          ) : (
+            l.title
+          )}
         </h3>
         {l.title_machine_translated ? (
           <p className="-mt-1.5 text-[11px] text-muted">Machine-translated title</p>
@@ -202,11 +218,37 @@ export function ResultCard({
             href={l.url}
             target="_blank"
             rel="noopener noreferrer sponsored"
+            onClick={() => recordEvent("clicked_out", result.listing_id)}
             className={buttonClasses("secondary", "sm")}
             aria-label={`View on ${marketplaceName} (opens in a new tab)`}
           >
             View <ArrowUpRight className="size-4" aria-hidden="true" />
           </a>
+          {result.listing_id ? (
+            onToggleSave ? (
+              <button
+                onClick={() => onToggleSave(result)}
+                aria-pressed={saved}
+                aria-label={saved ? `Remove ${l.title} from saved` : `Save ${l.title}`}
+                title={saved ? "Saved" : "Save"}
+                className={buttonClasses("secondary", "sm", "w-9 px-0")}
+              >
+                <Heart
+                  className={cn("size-4", saved && "fill-ember text-ember")}
+                  aria-hidden="true"
+                />
+              </button>
+            ) : (
+              <Link
+                href="/login/"
+                aria-label="Sign in to save"
+                title="Sign in to save"
+                className={buttonClasses("secondary", "sm", "w-9 px-0")}
+              >
+                <Heart className="size-4" aria-hidden="true" />
+              </Link>
+            )
+          ) : null}
         </div>
       </div>
     </article>
