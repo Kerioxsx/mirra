@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from mirra.core.taxonomy import Authenticity
+from mirra.modules.agents.schemas import PurchaseRoute
 from mirra.modules.marketplaces.base import Money
 from mirra.modules.search.schemas import FxInfo, MarketplaceSearchStatus, SearchResult
 
@@ -27,6 +28,9 @@ class ListingDetail(BaseModel):
     price_history: list[PricePoint] = Field(description="Prices Mirra has observed, newest first")
     saved: bool = False
     fx: FxInfo | None = None
+    purchase_routes: list[PurchaseRoute] = Field(
+        default_factory=list, description="Ways to buy from abroad, e.g. through a purchasing agent"
+    )
 
 
 class Alternative(BaseModel):

@@ -129,6 +129,10 @@ class NormalizedListing(BaseModel):
         default_factory=list, description="Why the listing got its authenticity label"
     )
     is_demo: bool = Field(default=False, description="Sample data, never a real listing")
+    source_url: str | None = Field(
+        default=None,
+        description="Canonical item link on the origin marketplace, when known (agents need it)",
+    )
 
 
 class ConnectorSearchPage(BaseModel):

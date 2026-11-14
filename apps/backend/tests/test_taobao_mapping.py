@@ -29,7 +29,10 @@ def test_maps_documented_fields() -> None:
 
     hoodie = listings[0]
     assert hoodie.marketplace_id == "taobao"
-    assert hoodie.url == "https://intl.taobao.com/dp?h5Url=test-0001"
+    assert hoodie.url.startswith("https://intl.taobao.com/dp?h5Url=")
+    assert (
+        hoodie.source_url == "https://item.taobao.com/item.htm?id=700000000001"
+    )  # read from the link itself
     assert hoodie.category is Category.zip_up
     assert hoodie.colors == ["black"]
     assert hoodie.price.amount == Decimal("239.00") and hoodie.price.currency == "CNY"
@@ -62,6 +65,9 @@ def test_labels_alternatives_and_replicas() -> None:
     assert vest.category is Category.vest
     assert vest.url.startswith("https://intl.taobao.com")  # protocol-relative link fixed
     assert vest.shipping.cost is None  # no free-shipping tag → unknown, not zero
+    assert (
+        vest.source_url is None
+    )  # the deep link carries no original item link; never reconstructed
     assert sneaker.authenticity is Authenticity.replica_advertised
     assert sneaker.category is Category.sneakers
     assert sneaker.list_price is None and sneaker.estimated_final_price is None

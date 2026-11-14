@@ -56,6 +56,16 @@ class Settings(BaseSettings):
     taobao_global_app_key: str | None = None
     taobao_global_app_secret: SecretStr | None = None
 
+    # KakoBuy purchasing agent (link-based; no API). Fee defaults are what KakoBuy states on its
+    # "Services & Fees" help page (checked 2026-11-15); operators should re-check and override.
+    kakobuy_enabled: bool = True
+    kakobuy_link_template: str = "https://www.kakobuy.com/item/details?url={url}"
+    kakobuy_referral_param: str = "affcode"
+    kakobuy_referral_code: str | None = None
+    kakobuy_service_fee_percent: Decimal = Decimal("0")
+    kakobuy_declaration_fee_cny: Decimal = Decimal("8.00")
+    kakobuy_terms_checked: str = "2026-11-15"
+
     # Prices & landed cost
     fx_source: Literal["ecb", "none"] = "ecb"
     forwarding_rate_per_kg: Decimal | None = None

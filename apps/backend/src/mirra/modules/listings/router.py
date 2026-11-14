@@ -10,6 +10,7 @@ from sqlalchemy import select
 from mirra.core.config import get_settings
 from mirra.core.errors import ErrorResponse, NotFound
 from mirra.core.ratelimit import rate_limit
+from mirra.modules.agents.kakobuy import kakobuy_route
 from mirra.modules.auth.deps import SessionDep
 from mirra.modules.listings.schemas import (
     Alternative,
@@ -77,6 +78,19 @@ async def get_listing_detail(
         price_history=history,
         saved=saved,
         fx=shopper.fx_info,
+        purchase_routes=[
+            r
+            for r in [
+                kakobuy_route(
+                    stored.listing,
+                    get_settings(),
+                    currency=shopper.currency,
+                    fx=shopper.fx,
+                    forwarding=shopper.forwarding,
+                )
+            ]
+            if r is not None
+        ],
     )
 
 

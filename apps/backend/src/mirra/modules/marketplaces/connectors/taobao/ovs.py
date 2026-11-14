@@ -14,6 +14,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from mirra.core.taxonomy import Availability, ListingCondition
+from mirra.modules.agents.links import try_parse
 from mirra.modules.marketplaces.base import (
     Money,
     NormalizedListing,
@@ -152,6 +153,8 @@ def map_item(raw: dict[str, Any], *, language: str) -> NormalizedListing | None:
         )
 
     free_domestic = any(_FREE_SHIPPING.search(t) for t in tags)
+    # only if the link itself contains the original item URL — never reconstructed from item_id
+    origin = try_parse(url) or try_parse(https(publish.get("coupon_share_url")))
     english = language.startswith("en")
     category = detect_category(
         basic.get("category_name"), basic.get("level_one_category_name"), title
@@ -184,6 +187,7 @@ def map_item(raw: dict[str, Any], *, language: str) -> NormalizedListing | None:
         store_badge=store_badge,
         sales_label=_sales_label(basic.get("annual_vol"), language),
         promotion_tags=tags,
+        source_url=origin.canonical_url if origin else None,
     )
 
 

@@ -1,5 +1,5 @@
 {
-  "_comment": "Test fixture shaped like the documented response of taobao.ovs.tbk.material.item.optional (Taobao Open Platform API doc 72807). Values are illustrative; this is not real listing data.",
+  "_comment": "Test fixture shaped like the documented response of taobao.ovs.tbk.material.item.optional (Taobao Open Platform API doc 72807). Values are illustrative; this is not real listing data. Some click_url deep links carry an encoded original item link in h5Url (illustrative ids) so agent routing can be tested; whether live links do must be verified with real credentials.",
   "ovs_tbk_material_item_optional_response": {
     "total_results": 1234,
     "next_page": 2,
@@ -13,7 +13,11 @@
             "short_title": "Zip-up hoodie",
             "pict_url": "//img.example.com/test/hoodie.jpg",
             "white_image": "https://img.example.com/test/hoodie-white.jpg",
-            "small_images": {"string": ["//img.example.com/test/hoodie-2.jpg"]},
+            "small_images": {
+              "string": [
+                "//img.example.com/test/hoodie-2.jpg"
+              ]
+            },
             "brand_name": "Test Brand",
             "category_id": 50000671,
             "category_name": "Hoodies",
@@ -33,16 +37,33 @@
             "reserve_price": "299.00",
             "zk_final_price": "239.00",
             "final_promotion_price": "219.00",
-            "zk_final_localized_price": {"formatted_price": "HK$259.50", "formatted_price_number": "259.50", "currency_symbol": "HK$", "currency_code": "HKD"},
-            "promotion_tag_list": {"material_item_promotion_tag_d_t_o": [{"tag_name": "包邮"}, {"tag_name": "满200减20"}]}
+            "zk_final_localized_price": {
+              "formatted_price": "HK$259.50",
+              "formatted_price_number": "259.50",
+              "currency_symbol": "HK$",
+              "currency_code": "HKD"
+            },
+            "promotion_tag_list": {
+              "material_item_promotion_tag_d_t_o": [
+                {
+                  "tag_name": "包邮"
+                },
+                {
+                  "tag_name": "满200减20"
+                }
+              ]
+            }
           },
           "publish_info": {
-            "click_url": "https://intl.taobao.com/dp?h5Url=test-0001",
+            "click_url": "https://intl.taobao.com/dp?h5Url=https%3A%2F%2Fitem.taobao.com%2Fitem.htm%3Fid%3D700000000001",
             "coupon_share_url": "https://intl.taobao.com/dp?h5Url=test-0001-coupon",
             "income_rate": "5.50",
             "commission_type": "COMMON"
           },
-          "coupon_info": {"coupon_sale_text_info": "满200元减20元", "coupon_amount": "20"}
+          "coupon_info": {
+            "coupon_sale_text_info": "满200元减20元",
+            "coupon_amount": "20"
+          }
         },
         {
           "item_id": "TEST-taobao-alt-0002",
@@ -57,8 +78,14 @@
             "user_type": 0,
             "annual_vol": "800+"
           },
-          "price_promotion_info": {"reserve_price": "159.00", "zk_final_price": "129.00", "final_promotion_price": "129.00"},
-          "publish_info": {"click_url": "//intl.taobao.com/dp?h5Url=test-0002"}
+          "price_promotion_info": {
+            "reserve_price": "159.00",
+            "zk_final_price": "129.00",
+            "final_promotion_price": "129.00"
+          },
+          "publish_info": {
+            "click_url": "//intl.taobao.com/dp?h5Url=test-0002"
+          }
         },
         {
           "item_id": "TEST-replica-0003",
@@ -70,13 +97,22 @@
             "shop_title": "Test sneaker shop",
             "user_type": 0
           },
-          "price_promotion_info": {"zk_final_price": "260.00"},
-          "publish_info": {"click_url": "https://intl.taobao.com/dp?h5Url=test-0003"}
+          "price_promotion_info": {
+            "zk_final_price": "260.00"
+          },
+          "publish_info": {
+            "click_url": "https://intl.taobao.com/dp?h5Url=https%3A%2F%2Fitem.taobao.com%2Fitem.htm%3Fid%3D700000000003"
+          }
         },
         {
           "item_id": "TEST-no-link-0004",
-          "item_basic_info": {"title": "Listing without a promotion link", "user_type": 0},
-          "price_promotion_info": {"zk_final_price": "10.00"},
+          "item_basic_info": {
+            "title": "Listing without a promotion link",
+            "user_type": 0
+          },
+          "price_promotion_info": {
+            "zk_final_price": "10.00"
+          },
           "publish_info": {}
         }
       ]

@@ -70,6 +70,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/links/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Link
+         * @description Recognise a pasted Taobao / Tmall / Weidian / 1688 / KakoBuy link and offer ways to buy it.
+         *     Nothing is fetched from the marketplace; product details are only known if Mirra already has the
+         *     listing from a search.
+         */
+        post: operations["agents_resolve_link"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/listings/{listing_id}": {
         parameters: {
             query?: never;
@@ -566,6 +588,27 @@ export interface components {
             /** @description Sum of the known components */
             total_known: components["schemas"]["Money"] | null;
         };
+        /** LinkResolution */
+        LinkResolution: {
+            /** Canonical Url */
+            canonical_url: string;
+            /** Item Id */
+            item_id: string;
+            /**
+             * Listing Id
+             * @description A stored Mirra listing for the same item
+             */
+            listing_id?: string | null;
+            /** Routes */
+            routes: components["schemas"]["PurchaseRoute"][];
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "taobao" | "tmall" | "weidian" | "1688";
+            /** Source Name */
+            source_name: string;
+        };
         /**
          * ListingCondition
          * @enum {string}
@@ -592,6 +635,11 @@ export interface components {
              * @description Prices Mirra has observed, newest first
              */
             price_history: components["schemas"]["PricePoint"][];
+            /**
+             * Purchase Routes
+             * @description Ways to buy from abroad, e.g. through a purchasing agent
+             */
+            purchase_routes?: components["schemas"]["PurchaseRoute"][];
             result: components["schemas"]["SearchResult"];
             /**
              * Saved
@@ -775,6 +823,11 @@ export interface components {
             /** Sizes Available */
             sizes_available?: string[] | null;
             /**
+             * Source Url
+             * @description Canonical item link on the origin marketplace, when known (agents need it)
+             */
+            source_url?: string | null;
+            /**
              * Store Badge
              * @description e.g. "Tmall", "Official store"
              */
@@ -929,6 +982,36 @@ export interface components {
             price: components["schemas"]["Money"];
             shipping?: components["schemas"]["Money"] | null;
         };
+        /**
+         * PurchaseRoute
+         * @description A way to buy a listing from abroad, e.g. through a purchasing agent.
+         */
+        PurchaseRoute: {
+            /** Available */
+            available: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @default agent
+             * @constant
+             */
+            kind: "agent";
+            landed_cost?: components["schemas"]["LandedCost"] | null;
+            /** Name */
+            name: string;
+            /** Notes */
+            notes?: string[];
+            /**
+             * Terms Checked
+             * @description When the agent's published fees were last checked
+             */
+            terms_checked?: string | null;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+            /** Url */
+            url?: string | null;
+        };
         /** Readiness */
         Readiness: {
             /** Database */
@@ -964,6 +1047,11 @@ export interface components {
          * @enum {string}
          */
         RenderQuality: "low" | "medium" | "high";
+        /** ResolveRequest */
+        ResolveRequest: {
+            /** Url */
+            url: string;
+        };
         /** SavedItem */
         SavedItem: {
             listing: components["schemas"]["ListingSummary"];
@@ -1352,6 +1440,39 @@ export interface operations {
             };
             /** @description Too Many Requests */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    agents_resolve_link: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkResolution"];
+                };
+            };
+            /** @description Validation error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

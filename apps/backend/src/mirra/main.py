@@ -17,6 +17,7 @@ from mirra.core.db import dispose_engine
 from mirra.core.errors import install_error_handlers
 from mirra.core.health import router as health_router
 from mirra.db import models as _models  # noqa: F401 - register every table for FK resolution
+from mirra.modules.agents.router import router as agents_router
 from mirra.modules.auth.router import router as auth_router
 from mirra.modules.listings.router import router as listings_router
 from mirra.modules.marketplaces.registry import build_registry
@@ -108,6 +109,7 @@ def create_app() -> FastAPI:
         listings_router,
         shopping_router,
         outfits_router,
+        agents_router,
     ):
         app.include_router(router, prefix=API_PREFIX)
     return app

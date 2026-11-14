@@ -71,6 +71,15 @@ class LandedCost(BaseModel):
     fx_as_of: str | None = None
 
 
+class ExtraFee(BaseModel):
+    """An additional cost line (e.g. an agent's service or customs-declaration fee)."""
+
+    label: str
+    amount: Money | None
+    estimate: bool = False
+    note: str | None = None
+
+
 class ForwardingRate(BaseModel):
     per_kg: Money
     label: str = "International shipping via forwarder"
@@ -86,6 +95,7 @@ def estimate_landed_cost(
     category: Category | None,
     cross_border: bool,
     forwarding: ForwardingRate | None,
+    extra_fees: list[ExtraFee] | None = None,
 ) -> LandedCost | None:
     """Return None when the price can't even be expressed in the buyer's currency."""
 
@@ -115,6 +125,19 @@ def estimate_landed_cost(
             note=None if domestic_shipping is not None else "Not provided by the marketplace",
         ),
     ]
+    for fee in extra_fees or []:
+        converted_fee = conv(fee.amount)
+        comps.append(
+            CostComponent(
+                label=fee.label,
+                amount=converted_fee,
+                estimate=fee.estimate
+                or (fee.amount is not None and fee.amount.currency != target_currency),
+                note=fee.note
+                if converted_fee is not None or fee.amount is None
+                else "Can't convert this fee",
+            )
+        )
     if cross_border:
         intl: Money | None = None
         note = "Depends on your forwarder or consolidation service"
