@@ -70,6 +70,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/listings/{listing_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Listing Detail
+         * @description A stored listing, priced for this shopper, with the prices Mirra has seen over time.
+         */
+        get: operations["listings_get_listing_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/listings/{listing_id}/alternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Alternatives
+         * @description Similar pieces across every live marketplace, cheapest first. Replicas are excluded.
+         */
+        get: operations["listings_get_alternatives"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/marketplaces": {
         parameters: {
             query?: never;
@@ -85,6 +125,81 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/outfits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Outfits */
+        get: operations["outfits_list_outfits"];
+        put?: never;
+        /**
+         * Create Outfit
+         * @description Save a look. Products must be listings Mirra has stored (from search).
+         */
+        post: operations["outfits_create_outfit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/outfits/{outfit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Outfit */
+        get: operations["outfits_get_outfit"];
+        put?: never;
+        post?: never;
+        /** Delete Outfit */
+        delete: operations["outfits_delete_outfit"];
+        options?: never;
+        head?: never;
+        /** Rename Outfit */
+        patch: operations["outfits_rename_outfit"];
+        trace?: never;
+    };
+    "/api/v1/saved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved */
+        get: operations["shopping_list_saved"];
+        put?: never;
+        /** Save Listing */
+        post: operations["shopping_save_listing"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saved/{listing_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unsave Listing */
+        delete: operations["shopping_unsave_listing"];
         options?: never;
         head?: never;
         patch?: never;
@@ -106,6 +221,47 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shopping/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record Event
+         * @description Record that the shopper viewed a listing or clicked through to the marketplace.
+         */
+        post: operations["shopping_record_event"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shopping/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get History */
+        get: operations["shopping_get_history"];
+        put?: never;
+        post?: never;
+        /**
+         * Clear History
+         * @description Delete every search and shopping event for this user. Saved items are kept.
+         */
+        delete: operations["shopping_clear_history"];
         options?: never;
         head?: never;
         patch?: never;
@@ -200,6 +356,41 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** Alternative */
+        Alternative: {
+            /** Match Reasons */
+            match_reasons: string[];
+            /**
+             * Match Score
+             * @description Heuristic similarity estimate
+             */
+            match_score: number;
+            result: components["schemas"]["SearchResult"];
+            /** @description Cheaper than the original by this much (same currency) */
+            savings: components["schemas"]["Money"] | null;
+        };
+        /** AlternativesResponse */
+        AlternativesResponse: {
+            /** Alternatives */
+            alternatives: components["schemas"]["Alternative"][];
+            /**
+             * Base Id
+             * Format: uuid
+             */
+            base_id: string;
+            /** Currency */
+            currency: string;
+            /**
+             * Excluded Replicas
+             * @description Matches left out because they advertise as replicas
+             */
+            excluded_replicas: number;
+            fx?: components["schemas"]["FxInfo"] | null;
+            /** Marketplaces */
+            marketplaces: components["schemas"]["MarketplaceSearchStatus"][];
+            /** Query Used */
+            query_used: string;
+        };
         /**
          * Authenticity
          * @description Never upgraded from AI output alone.
@@ -211,6 +402,11 @@ export interface components {
          * @enum {string}
          */
         Availability: "in_stock" | "low_stock" | "out_of_stock" | "unknown";
+        /**
+         * BodyRegion
+         * @enum {string}
+         */
+        BodyRegion: "head" | "face" | "neck" | "torso" | "full_body" | "waist" | "legs" | "feet" | "wrist" | "carry";
         /**
          * Category
          * @enum {string}
@@ -301,6 +497,33 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** EventEntry */
+        EventEntry: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "viewed" | "clicked_out" | "purchase_reported";
+            listing: components["schemas"]["ListingSummary"];
+        };
+        /** EventRequest */
+        EventRequest: {
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "viewed" | "clicked_out";
+            /**
+             * Listing Id
+             * Format: uuid
+             */
+            listing_id: string;
+        };
         /** FxInfo */
         FxInfo: {
             /** As Of */
@@ -348,6 +571,79 @@ export interface components {
          * @enum {string}
          */
         ListingCondition: "new" | "new_with_tags" | "new_without_tags" | "used_like_new" | "used_good" | "used_fair" | "refurbished" | "unknown";
+        /** ListingDetail */
+        ListingDetail: {
+            /**
+             * Fetched At
+             * Format: date-time
+             * @description When Mirra last fetched this listing from the marketplace
+             */
+            fetched_at: string;
+            fx?: components["schemas"]["FxInfo"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Marketplace Name */
+            marketplace_name: string;
+            /**
+             * Price History
+             * @description Prices Mirra has observed, newest first
+             */
+            price_history: components["schemas"]["PricePoint"][];
+            result: components["schemas"]["SearchResult"];
+            /**
+             * Saved
+             * @default false
+             */
+            saved: boolean;
+            /**
+             * Stale
+             * @description True when the data is older than the refresh window
+             */
+            stale: boolean;
+        };
+        /**
+         * ListingSummary
+         * @description Compact listing card data for saved items, history and outfits.
+         */
+        ListingSummary: {
+            /** Authenticity */
+            authenticity: string;
+            /** Category */
+            category?: string | null;
+            /** Colors */
+            colors?: string[];
+            /** External Id */
+            external_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Is Demo
+             * @default false
+             */
+            is_demo: boolean;
+            /** Marketplace Id */
+            marketplace_id: string;
+            price?: components["schemas"]["Money"] | null;
+            /**
+             * Stale
+             * @default false
+             */
+            stale: boolean;
+            /** Store Badge */
+            store_badge?: string | null;
+            /** Title */
+            title: string;
+            /** Url */
+            url: string;
+        };
         /** LoginRequest */
         LoginRequest: {
             /**
@@ -519,6 +815,76 @@ export interface components {
             /** Url */
             url?: string | null;
         };
+        /** OutfitIn */
+        OutfitIn: {
+            /** Items */
+            items: components["schemas"]["OutfitItemIn"][];
+            /** Name */
+            name: string;
+        };
+        /** OutfitItemIn */
+        OutfitItemIn: {
+            category: components["schemas"]["Category"];
+            /** Color Hex */
+            color_hex: string;
+            /**
+             * Listing Id
+             * @description A stored listing (from search) for real products
+             */
+            listing_id?: string | null;
+        };
+        /** OutfitItemOut */
+        OutfitItemOut: {
+            body_region: components["schemas"]["BodyRegion"];
+            category: components["schemas"]["Category"];
+            /** Color Hex */
+            color_hex: string;
+            /**
+             * Fidelity
+             * @enum {string}
+             */
+            fidelity: "generic" | "approximate";
+            /** Layer */
+            layer: number;
+            listing?: components["schemas"]["ListingSummary"] | null;
+        };
+        /** OutfitOut */
+        OutfitOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Items */
+            items: components["schemas"]["OutfitItemOut"][];
+            /** Name */
+            name: string;
+            /**
+             * Price Complete
+             * @description False if any product's price is unknown
+             */
+            price_complete: boolean;
+            /**
+             * Totals
+             * @description Sum of known item prices, one entry per currency
+             */
+            totals: components["schemas"]["Money"][];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** OutfitRename */
+        OutfitRename: {
+            /** Name */
+            name: string;
+        };
         /**
          * Preferences
          * @description Style profile used by search ranking, the AI stylist and the dresser.
@@ -553,6 +919,16 @@ export interface components {
             };
             /** Styles */
             styles?: string[];
+        };
+        /** PricePoint */
+        PricePoint: {
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            price: components["schemas"]["Money"];
+            shipping?: components["schemas"]["Money"] | null;
         };
         /** Readiness */
         Readiness: {
@@ -589,6 +965,40 @@ export interface components {
          * @enum {string}
          */
         RenderQuality: "low" | "medium" | "high";
+        /** SavedItem */
+        SavedItem: {
+            listing: components["schemas"]["ListingSummary"];
+            /**
+             * Listing Id
+             * Format: uuid
+             */
+            listing_id: string;
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+        };
+        /** SaveRequest */
+        SaveRequest: {
+            /**
+             * Listing Id
+             * Format: uuid
+             */
+            listing_id: string;
+        };
+        /** SearchEntry */
+        SearchEntry: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Query */
+            query: string;
+            /** Result Count */
+            result_count: number | null;
+        };
         /** SearchResponse */
         SearchResponse: {
             /** Currency */
@@ -611,6 +1021,11 @@ export interface components {
             converted_price: components["schemas"]["Money"] | null;
             landed_cost?: components["schemas"]["LandedCost"] | null;
             listing: components["schemas"]["NormalizedListing"];
+            /**
+             * Listing Id
+             * @description Mirra's id for this listing (stable across searches)
+             */
+            listing_id?: string | null;
         };
         /** ShippingQuote */
         ShippingQuote: {
@@ -622,6 +1037,13 @@ export interface components {
             min_days?: number | null;
             /** Ship To Country */
             ship_to_country?: string | null;
+        };
+        /** ShoppingHistory */
+        ShoppingHistory: {
+            /** Events */
+            events: components["schemas"]["EventEntry"][];
+            /** Searches */
+            searches: components["schemas"]["SearchEntry"][];
         };
         /** TokenResponse */
         TokenResponse: {
@@ -940,6 +1362,92 @@ export interface operations {
             };
         };
     };
+    listings_get_listing_detail: {
+        parameters: {
+            query?: {
+                currency?: string | null;
+                ship_to?: string | null;
+            };
+            header?: never;
+            path: {
+                listing_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListingDetail"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listings_get_alternatives: {
+        parameters: {
+            query?: {
+                currency?: string | null;
+                ship_to?: string | null;
+            };
+            header?: never;
+            path: {
+                listing_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlternativesResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     marketplaces_list_marketplaces: {
         parameters: {
             query?: never;
@@ -956,6 +1464,389 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MarketplaceInfo"][];
+                };
+            };
+        };
+    };
+    outfits_list_outfits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutfitOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    outfits_create_outfit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OutfitIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutfitOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    outfits_get_outfit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outfit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutfitOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    outfits_delete_outfit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outfit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    outfits_rename_outfit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outfit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OutfitRename"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutfitOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_list_saved: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedItem"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_save_listing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedItem"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_unsave_listing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                listing_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1000,6 +1891,129 @@ export interface operations {
             };
             /** @description Too Many Requests */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_record_event: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_get_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShoppingHistory"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    shopping_clear_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

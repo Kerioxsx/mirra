@@ -81,3 +81,8 @@ def install_error_handlers(app: FastAPI) -> None:
     async def _http(_: Request, exc: StarletteHTTPException) -> JSONResponse:
         code = {404: "not_found", 405: "method_not_allowed"}.get(exc.status_code, "http_error")
         return _envelope(exc.status_code, code, str(exc.detail))
+
+
+class Unprocessable(AppError):
+    status_code = 422
+    code = "unprocessable"

@@ -20,6 +20,7 @@ from mirra.modules.auth.router import router as auth_router
 from mirra.modules.listings.router import router as listings_router
 from mirra.modules.marketplaces.registry import build_registry
 from mirra.modules.marketplaces.router import router as marketplaces_router
+from mirra.modules.outfits.router import router as outfits_router
 from mirra.modules.pricing.fx import EcbFxProvider, FxProvider, StaticFxProvider
 from mirra.modules.search.cache import MemoryPageCache, PageCache, RedisPageCache
 from mirra.modules.search.router import router as search_router
@@ -105,6 +106,7 @@ def create_app() -> FastAPI:
         search_router,
         listings_router,
         shopping_router,
+        outfits_router,
     ):
         app.include_router(router, prefix=API_PREFIX)
     return app
