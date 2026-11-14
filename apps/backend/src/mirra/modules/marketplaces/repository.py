@@ -1,9 +1,9 @@
 """Persistence for listings returned by connectors.
 
 Each listing keeps its own seller, price, shipping, condition, availability and original URL, and
-the full normalized record in ``raw`` so detail pages can be rebuilt. Price changes are appended to
-``price_history``. ``expires_at`` marks when the data must be refreshed before being shown as current
-(provider terms limit how long listing data may be displayed).
+the full normalized record in ``raw`` so detail pages can be rebuilt. Price changes are appended
+to ``price_history``. ``expires_at`` marks when the data must be refreshed before being shown as
+current (provider terms limit how long listing data may be displayed).
 """
 
 from __future__ import annotations
