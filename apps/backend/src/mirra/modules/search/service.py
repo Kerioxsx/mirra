@@ -81,7 +81,7 @@ async def _run_one(
         )
 
 
-def _result(
+def build_result(
     listing: NormalizedListing,
     p: SearchParams,
     fx: FxRates | None,
@@ -154,7 +154,7 @@ async def search(
         if isinstance(outcome, MarketplaceSearchStatus):
             statuses.append(outcome)
             continue
-        group = [_result(item, p, fx, forwarding) for item in outcome.listings]
+        group = [build_result(item, p, fx, forwarding) for item in outcome.listings]
         groups.append(group)
         has_more = has_more or outcome.next_offset is not None
         statuses.append(

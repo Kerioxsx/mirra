@@ -17,11 +17,13 @@ from mirra.core.db import dispose_engine
 from mirra.core.errors import install_error_handlers
 from mirra.core.health import router as health_router
 from mirra.modules.auth.router import router as auth_router
+from mirra.modules.listings.router import router as listings_router
 from mirra.modules.marketplaces.registry import build_registry
 from mirra.modules.marketplaces.router import router as marketplaces_router
 from mirra.modules.pricing.fx import EcbFxProvider, FxProvider, StaticFxProvider
 from mirra.modules.search.cache import MemoryPageCache, PageCache, RedisPageCache
 from mirra.modules.search.router import router as search_router
+from mirra.modules.shopping.router import router as shopping_router
 from mirra.modules.users.router import router as users_router
 
 API_PREFIX = "/api/v1"
@@ -96,7 +98,14 @@ def create_app() -> FastAPI:
     install_error_handlers(app)
     _document_error_envelope(app)
     app.include_router(health_router)
-    for router in (auth_router, users_router, marketplaces_router, search_router):
+    for router in (
+        auth_router,
+        users_router,
+        marketplaces_router,
+        search_router,
+        listings_router,
+        shopping_router,
+    ):
         app.include_router(router, prefix=API_PREFIX)
     return app
 

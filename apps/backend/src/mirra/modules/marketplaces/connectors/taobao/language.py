@@ -200,7 +200,7 @@ _STOPWORDS = {
 }
 
 _PHRASES = sorted(_GLOSSARY, key=len, reverse=True)
-_CJK = re.compile(r"[㐀-鿿]")
+_CJK = re.compile(r"[\u3400-\u9fff]")
 
 
 @dataclass(frozen=True)
