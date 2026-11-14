@@ -85,7 +85,7 @@ def parse_item_link(text: str, _depth: int = 0) -> SourceLink:
     m = re.search(r"(https?://\S+|(?:[\w-]+\.)+(?:com|cn|hk)/\S*)", raw)
     if not m:
         raise LinkError("That doesn't look like a link.")
-    url = m.group(1).rstrip(")】」,。\uff09\uff0c")  # also full-width ）and ，
+    url = m.group(1).rstrip(")】」,。\uff09\uff0c")  # also full-width paren and comma
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
     parsed = urlparse(url)
