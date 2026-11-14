@@ -6,6 +6,7 @@ import type { ListingSummary, ShoppingHistory } from "@mirra/shared-types";
 import { AuthenticityBadge, Badge, Button, EmptyState, Spinner } from "@mirra/ui";
 import { formatMoney, marketplaceName } from "@/features/discover/format";
 import { useSaved } from "@/features/discover/useSaved";
+import { SafeImage } from "@/components/SafeImage";
 import { getClient } from "@/lib/api";
 
 const when = (iso: string) =>
@@ -26,14 +27,7 @@ export function ListingRow({
   return (
     <div className="flex items-center gap-4 py-3">
       <div className="size-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-        {listing.image_url ? (
-          <img
-            src={listing.image_url}
-            alt=""
-            referrerPolicy="no-referrer"
-            className="h-full w-full object-cover"
-          />
-        ) : null}
+        <SafeImage src={listing.image_url} />
       </div>
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 font-mono text-[10.5px] uppercase tracking-[0.1em] text-muted">

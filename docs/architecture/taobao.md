@@ -101,7 +101,6 @@ rather than guessing. Expect small adjustments after the first live call.
 - Chinese size mapping (Chinese sizes run small; 170/88A style codes → S/M/L).
 - Taobao Global: `/product/similar/get` for photo search, then `/product/details/query` for SKUs.
 - LLM translator behind `translate_query` for queries the glossary doesn't cover.
-- Cache search results in Redis with a short TTL to respect rate limits.
 
 ## Sources
 

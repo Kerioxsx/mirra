@@ -7,6 +7,7 @@ import { slotKey } from "@mirra/garment-system";
 import { isCategory, taxonomy, type Category, type CategoryGroup } from "@mirra/shared-types";
 import { buttonClasses, cn, Segmented } from "@mirra/ui";
 import { resolveColor } from "@mirra/garment-system";
+import { SafeImage } from "@/components/SafeImage";
 import { formatMoney, marketplaceName } from "@/features/discover/format";
 import { useSaved } from "@/features/discover/useSaved";
 import { CATEGORY_COLORS, genericItem, outfitStore, tryOn } from "./state";
@@ -121,14 +122,7 @@ function SavedPieces() {
             className="flex items-center gap-3 rounded-xl border border-line bg-surface p-2"
           >
             <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-              {l.image_url ? (
-                <img
-                  src={l.image_url}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
+              <SafeImage src={l.image_url} />
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-medium text-ink">{l.title}</p>

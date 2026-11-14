@@ -43,9 +43,14 @@ the feature is implemented **and** covered by passing tests.
 - [ ] **Live Taobao verification**: needs affiliate credentials (see taobao.md checklist)
 - [ ] Chinese size mapping
 - [ ] eBay Browse connector
-- [ ] Product detail page + offers comparison across marketplaces (exact-match by GTIN/MPN)
-- [ ] Persist listings + price history; Redis result cache
-- [ ] Shopping events (link-outs) → Shopping History page
+- [x] Persist listings (own seller, price, shipping, URL, full record) + price history; 24 h
+      freshness window
+- [x] Connector result cache (Redis, or in-process) so repeat searches don't hit provider limits
+- [x] Listing page: gallery, delivered-cost breakdown, observed price history, save, try on
+- [x] Deal finder (Workflow C): similar & cheaper across live marketplaces, match-score estimates,
+      savings, replicas excluded
+- [x] Saved products; shopping events (views, click-outs) → Shopping History page, deletable
+- [ ] Exact-product offers by GTIN/MPN (when a connector provides identifiers)
 
 ## Phase 3 — Visual AI (weeks 6–7)
 
@@ -65,7 +70,8 @@ the feature is implemented **and** covered by passing tests.
 - [ ] Blender base avatar `mirra-base@1` (rig + shape keys) replacing the procedural mannequin
 - [ ] Curated GLB library (~20 garments), manifest validation in CI, KTX2/meshopt pipeline
 - [ ] GLB loader with skeleton re-binding and LRU cache
-- [ ] Outfits API + account-synced saved outfits; avatar persistence
+- [x] Outfits API + account-synced saved outfits (save from the dresser, reopen, rename, delete)
+- [ ] Avatar persistence to the account
 
 ## Phase 6 — Digital wardrobe (weeks 14–15)
 

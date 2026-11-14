@@ -30,6 +30,12 @@ and building an outfit happen together.
   rates), delivered cost is estimated without inventing unknowns, and every listing is labelled:
   brand store, look-alike or replica. "Try on" puts any result on your avatar as a labelled
   approximate preview.
+- **Listing pages, deal finder, saved items and history.** Every result gets a stable Mirra
+  listing with observed price history. "Similar & cheaper" finds the same look across connected
+  marketplaces (replicas never suggested). Save pieces, and see searches and opened listings in a
+  private, deletable Shopping History.
+- **Saved outfits.** Save a look from the dresser to your account (basics plus real products with
+  their prices) and reopen it on any device.
 - **Honest marketplace catalog.** The API reports which marketplaces are live, planned, or blocked
   pending a partnership. The research behind each status is in
   [marketplaces.md](docs/architecture/marketplaces.md).
@@ -74,9 +80,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 50 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 66 |
 | Shared packages (Vitest) | `pnpm test` | 29 |
-| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 13 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 16 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated

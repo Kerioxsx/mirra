@@ -8,6 +8,7 @@ import { isCategory } from "@mirra/shared-types";
 import { isApiError } from "@mirra/api-client";
 import { AuthenticityBadge, Badge, buttonClasses, cn, EmptyState, Spinner } from "@mirra/ui";
 import { tryOn } from "@/features/dresser/state";
+import { SafeImage } from "@/components/SafeImage";
 import { getClient } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { recordEvent } from "./events";
@@ -76,12 +77,7 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
                 main?.i === i && "ring-2 ring-ink",
               )}
             >
-              <img
-                src={src}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="h-full w-full object-cover"
-              />
+              <SafeImage src={src} />
             </button>
           ))}
         </div>

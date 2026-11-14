@@ -6,6 +6,7 @@ import { Camera, Search } from "lucide-react";
 import type { MarketplaceSearchStatus, SearchResult } from "@mirra/shared-types";
 import { Button, cn, Spinner } from "@mirra/ui";
 import { tryOn } from "@/features/dresser/state";
+import { useAuth } from "@/lib/auth";
 import { toProductRef } from "./ListingView";
 import { ResultCard } from "./ResultCard";
 import { useSaved } from "./useSaved";
@@ -86,9 +87,10 @@ export function SearchView() {
 
   useEffect(() => setDraft(initialQ), [initialQ]);
 
+  const { status: authStatus } = useAuth();
   const input: SearchInput | null = useMemo(
     () =>
-      initialQ
+      initialQ && authStatus !== "loading"
         ? {
             q: initialQ,
             sort,
@@ -97,7 +99,7 @@ export function SearchView() {
             marketplaces: [],
           }
         : null,
-    [initialQ, sort, currency, priceMax],
+    [initialQ, sort, currency, priceMax, authStatus],
   );
   const state = useSearch(input);
   const saved = useSaved();
