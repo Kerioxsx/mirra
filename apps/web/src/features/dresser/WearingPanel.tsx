@@ -6,6 +6,7 @@ import { FIDELITY_LABELS, type SlotKey } from "@mirra/garment-system";
 import { layered, priceSummary } from "@mirra/outfit-engine";
 import { categorySpec, taxonomy } from "@mirra/shared-types";
 import { buttonClasses, cn, FidelityBadge } from "@mirra/ui";
+import { SaveLook } from "@/features/outfits/SaveLook";
 import { outfitStore } from "./state";
 
 const LAYER_NAMES = Object.fromEntries(
@@ -179,6 +180,7 @@ export function WearingPanel() {
           </ul>
         )}
       </section>
+      <SaveLook />
       <section
         aria-label="Outfit price"
         className="flex flex-col gap-1 rounded-2xl bg-surface-2 p-4"

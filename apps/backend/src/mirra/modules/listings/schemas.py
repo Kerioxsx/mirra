@@ -5,6 +5,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from mirra.core.taxonomy import Authenticity
 from mirra.modules.marketplaces.base import Money
 from mirra.modules.search.schemas import FxInfo, MarketplaceSearchStatus, SearchResult
 
@@ -61,7 +62,7 @@ class ListingSummary(BaseModel):
     price: Money | None = None
     category: str | None = None
     colors: list[str] = Field(default_factory=list)
-    authenticity: str
+    authenticity: Authenticity
     store_badge: str | None = None
     is_demo: bool = False
     stale: bool = False

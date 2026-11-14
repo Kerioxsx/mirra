@@ -16,7 +16,7 @@ def summarize(stored: StoredListing) -> ListingSummary:
         price=item.price,
         category=item.category.value if item.category else None,
         colors=item.colors,
-        authenticity=item.authenticity.value,
+        authenticity=item.authenticity,
         store_badge=item.store_badge,
         is_demo=item.is_demo,
         stale=stored.is_stale,

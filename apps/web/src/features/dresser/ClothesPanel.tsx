@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useStore } from "zustand";
 import { Archive, Bookmark, Search } from "lucide-react";
 import { slotKey } from "@mirra/garment-system";
-import { taxonomy, type Category, type CategoryGroup } from "@mirra/shared-types";
-import { cn, Segmented } from "@mirra/ui";
+import { isCategory, taxonomy, type Category, type CategoryGroup } from "@mirra/shared-types";
+import { buttonClasses, cn, Segmented } from "@mirra/ui";
 import { resolveColor } from "@mirra/garment-system";
-import { CATEGORY_COLORS, genericItem, outfitStore } from "./state";
+import { formatMoney, marketplaceName } from "@/features/discover/format";
+import { useSaved } from "@/features/discover/useSaved";
+import { CATEGORY_COLORS, genericItem, outfitStore, tryOn } from "./state";
 
 const GROUP_LABELS: Record<CategoryGroup, string> = {
   tops: "Tops",
@@ -92,6 +94,77 @@ function SourceEmpty({
   );
 }
 
+function SavedPieces() {
+  const saved = useSaved();
+  if (!saved.canSave || (saved.loaded && saved.items.length === 0)) {
+    return (
+      <SourceEmpty
+        icon={<Bookmark className="size-4" aria-hidden="true" />}
+        title="Saved pieces"
+        body={
+          saved.canSave
+            ? "Tap the heart on any product in Discover and it shows up here, ready to try on."
+            : "Sign in, then save products from Discover to try them on here."
+        }
+        href={saved.canSave ? "/discover/" : "/login/"}
+        cta={saved.canSave ? "Go to Discover" : "Sign in"}
+      />
+    );
+  }
+  return (
+    <ul className="flex flex-col gap-2" aria-label="Saved pieces">
+      {saved.items.map(({ listing: l }) => {
+        const category = l.category && isCategory(l.category) ? l.category : null;
+        return (
+          <li
+            key={l.id}
+            className="flex items-center gap-3 rounded-xl border border-line bg-surface p-2"
+          >
+            <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+              {l.image_url ? (
+                <img
+                  src={l.image_url}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[13px] font-medium text-ink">{l.title}</p>
+              <p className="text-[11.5px] text-muted">
+                {marketplaceName(l.marketplace_id)} · {formatMoney(l.price)}
+              </p>
+            </div>
+            <button
+              disabled={!category}
+              onClick={() =>
+                category &&
+                tryOn({
+                  productId: `${l.marketplace_id}:${l.external_id}`,
+                  title: l.title,
+                  category,
+                  colors: l.colors ?? [],
+                  marketplace: marketplaceName(l.marketplace_id),
+                  listingId: l.id,
+                  url: l.url,
+                  price: l.price
+                    ? { amount: Number(l.price.amount).toFixed(2), currency: l.price.currency }
+                    : null,
+                })
+              }
+              className={buttonClasses("secondary", "sm")}
+              aria-label={`Try on ${l.title}`}
+            >
+              Try on
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function ClothesPanel() {
   const [source, setSource] = useState<Source>("catalog");
   const [group, setGroup] = useState<CategoryGroup | "all">("all");
@@ -167,13 +240,7 @@ export function ClothesPanel() {
           cta="Open My Wardrobe"
         />
       ) : (
-        <SourceEmpty
-          icon={<Bookmark className="size-4" aria-hidden="true" />}
-          title="Saved pieces"
-          body="Products you save while browsing collect here."
-          href="/outfits/"
-          cta="See saved outfits"
-        />
+        <SavedPieces />
       )}
     </div>
   );

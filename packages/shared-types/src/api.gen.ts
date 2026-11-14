@@ -609,8 +609,7 @@ export interface components {
          * @description Compact listing card data for saved items, history and outfits.
          */
         ListingSummary: {
-            /** Authenticity */
-            authenticity: string;
+            authenticity: components["schemas"]["Authenticity"];
             /** Category */
             category?: string | null;
             /** Colors */
