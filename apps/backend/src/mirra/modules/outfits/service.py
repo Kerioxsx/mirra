@@ -44,7 +44,9 @@ def validate_layout(categories: list[Category]) -> None:
         for region in FULL_BODY_COVERS:
             covered = seen.get((region, LAYER_BASE))
             if covered is not None:
-                raise Unprocessable(f"A one-piece covers the {region.value}; remove the {covered.value}")
+                raise Unprocessable(
+                    f"A one-piece covers the {region.value}; remove the {covered.value}"
+                )
 
 
 async def _generic_garment(session: AsyncSession, category: Category) -> uuid.UUID:
