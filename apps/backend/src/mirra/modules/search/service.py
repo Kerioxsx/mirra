@@ -7,6 +7,8 @@ import logging
 from dataclasses import dataclass
 from decimal import Decimal
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from mirra.core.taxonomy import Category, MarketplaceStatus
 from mirra.modules.marketplaces.base import (
     CapabilityNotSupported,
@@ -19,8 +21,10 @@ from mirra.modules.marketplaces.base import (
 )
 from mirra.modules.marketplaces.catalog import CATALOG
 from mirra.modules.marketplaces.registry import ConnectorRegistry
+from mirra.modules.marketplaces.repository import MarketplaceMeta, upsert_listings
 from mirra.modules.pricing.fx import FxRates
 from mirra.modules.pricing.landed_cost import ForwardingRate, estimate_landed_cost
+from mirra.modules.search.cache import PageCache, cache_key
 from mirra.modules.search.schemas import (
     FxInfo,
     MarketplaceSearchStatus,
@@ -49,10 +53,19 @@ class SearchParams:
 
 
 async def _run_one(
-    conn: MarketplaceConnector, query: ConnectorQuery, time_limit: float
+    conn: MarketplaceConnector,
+    query: ConnectorQuery,
+    time_limit: float,
+    cache: PageCache | None = None,
 ) -> ConnectorSearchPage | MarketplaceSearchStatus:
+    key = cache_key(conn.id, query)
+    if cache is not None and (hit := await cache.get(key)) is not None:
+        return hit
     try:
-        return await asyncio.wait_for(conn.search_products(query), timeout=time_limit)
+        page = await asyncio.wait_for(conn.search_products(query), timeout=time_limit)
+        if cache is not None:
+            await cache.set(key, page)
+        return page
     except TimeoutError:
         return MarketplaceSearchStatus(
             id=conn.id, name=conn.name, status="timeout", message="Took too long to answer"
@@ -117,6 +130,7 @@ async def search(
     fx: FxRates | None,
     forwarding: ForwardingRate | None,
     time_limit: float,
+    cache: PageCache | None = None,
 ) -> SearchResponse:
     wanted = set(p.marketplaces) if p.marketplaces else None
     live = [c for c in registry.enabled() if wanted is None or c.id in wanted]
@@ -131,7 +145,7 @@ async def search(
         limit=p.page_size,
         offset=(p.page - 1) * p.page_size,
     )
-    outcomes = await asyncio.gather(*(_run_one(c, query, time_limit) for c in live))
+    outcomes = await asyncio.gather(*(_run_one(c, query, time_limit, cache) for c in live))
 
     statuses: list[MarketplaceSearchStatus] = []
     groups: list[list[SearchResult]] = []
@@ -183,3 +197,19 @@ async def search(
         page=p.page,
         has_more=has_more,
     )
+
+
+def marketplace_meta(registry: ConnectorRegistry) -> dict[str, MarketplaceMeta]:
+    return {
+        c.id: MarketplaceMeta(name=c.name, base_url=c.base_url, integration_type=c.integration_type)
+        for c in registry.enabled()
+    }
+
+
+async def persist_results(
+    session: AsyncSession, registry: ConnectorRegistry, results: list[SearchResult]
+) -> None:
+    """Store listings so they get stable ids, price history, and can be saved or used in outfits."""
+    ids = await upsert_listings(session, [r.listing for r in results], marketplace_meta(registry))
+    for r in results:
+        r.listing_id = ids.get((r.listing.marketplace_id, r.listing.external_id))

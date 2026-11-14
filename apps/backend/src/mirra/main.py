@@ -9,6 +9,7 @@ from typing import Any
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
+from redis.asyncio import Redis
 
 from mirra import __version__
 from mirra.core.config import get_settings
@@ -19,6 +20,7 @@ from mirra.modules.auth.router import router as auth_router
 from mirra.modules.marketplaces.registry import build_registry
 from mirra.modules.marketplaces.router import router as marketplaces_router
 from mirra.modules.pricing.fx import EcbFxProvider, FxProvider, StaticFxProvider
+from mirra.modules.search.cache import MemoryPageCache, PageCache, RedisPageCache
 from mirra.modules.search.router import router as search_router
 from mirra.modules.users.router import router as users_router
 
@@ -31,6 +33,11 @@ def _operation_id(route: APIRoute) -> str:
     return f"{tag}_{route.name}"
 
 
+def build_page_cache() -> PageCache:
+    url = get_settings().redis_url
+    return RedisPageCache(Redis.from_url(url)) if url else MemoryPageCache()
+
+
 def build_fx() -> FxProvider:
     return EcbFxProvider() if get_settings().fx_source == "ecb" else StaticFxProvider(None)
 
@@ -40,6 +47,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     get_settings().validate_for_runtime()
     app.state.fx = build_fx()
     app.state.registry = build_registry(app.state.fx)
+    app.state.page_cache = build_page_cache()
     yield
     await app.state.registry.aclose()
     await dispose_engine()
@@ -60,6 +68,7 @@ def create_app() -> FastAPI:
     # Present before startup so tools that skip the lifespan (OpenAPI export) still work.
     app.state.fx = build_fx()
     app.state.registry = build_registry(app.state.fx)
+    app.state.page_cache = build_page_cache()
 
     app.add_middleware(
         CORSMiddleware,

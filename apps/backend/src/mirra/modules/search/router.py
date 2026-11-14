@@ -69,13 +69,16 @@ async def search(
         page=page,
         page_size=page_size,
     )
+    registry = request.app.state.registry
     result = await service.search(
-        request.app.state.registry,
+        registry,
         params,
         fx=fx,
         forwarding=forwarding,
         time_limit=s.search_timeout_seconds,
+        cache=request.app.state.page_cache,
     )
+    await service.persist_results(session, registry, result.results)
     if user is not None and q.strip():
         session.add(
             SearchHistory(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -11,6 +12,9 @@ Sort = Literal["relevance", "price_asc", "price_desc", "newest"]
 
 
 class SearchResult(BaseModel):
+    listing_id: uuid.UUID | None = Field(
+        default=None, description="Mirra's id for this listing (stable across searches)"
+    )
     listing: NormalizedListing
     converted_price: Money | None = Field(
         description="Item price in the shopper's currency (approximate when converted)"
