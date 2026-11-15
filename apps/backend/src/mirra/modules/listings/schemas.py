@@ -9,6 +9,7 @@ from mirra.core.taxonomy import Authenticity
 from mirra.modules.agents.schemas import PurchaseRoute
 from mirra.modules.marketplaces.base import Money
 from mirra.modules.search.schemas import FxInfo, MarketplaceSearchStatus, SearchResult
+from mirra.modules.sizing.schemas import SizeGuide
 
 
 class PricePoint(BaseModel):
@@ -30,6 +31,9 @@ class ListingDetail(BaseModel):
     fx: FxInfo | None = None
     purchase_routes: list[PurchaseRoute] = Field(
         default_factory=list, description="Ways to buy from abroad, e.g. through a purchasing agent"
+    )
+    size_guide: SizeGuide | None = Field(
+        default=None, description="Chinese size labels the listing mentions, read (estimates)"
     )
 
 

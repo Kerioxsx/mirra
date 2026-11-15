@@ -15,6 +15,7 @@ import { recordEvent } from "./events";
 import { formatMoney, marketplaceName } from "./format";
 import { CostBreakdown, Price, ResultCard } from "./ResultCard";
 import { useSaved } from "./useSaved";
+import { SizeGuidePanel } from "./SizeGuide";
 import { RouteCard } from "./WaysToBuy";
 
 type Load<T> =
@@ -263,6 +264,7 @@ export function ListingView() {
               ))}
             </section>
           ) : null}
+          {d.size_guide ? <SizeGuidePanel guide={d.size_guide} /> : null}
           <p className="text-[12px] text-muted">
             Price as of {dateLabel(d.fetched_at)} from {d.marketplace_name}.
             {d.stale

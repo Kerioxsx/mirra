@@ -5,6 +5,7 @@ import { isApiError } from "@mirra/api-client";
 import type { Preferences } from "@mirra/shared-types";
 import { Button, Field, Segmented, Spinner } from "@mirra/ui";
 import { getClient } from "@/lib/api";
+import { MEASUREMENT_KEYS } from "@/features/discover/SizeGuide";
 import { useAuth } from "@/lib/auth";
 import { applyTheme, readTheme, type ThemePref } from "@/lib/theme";
 import { TagInput } from "./TagInput";
@@ -182,6 +183,31 @@ function StyleSection() {
             />
           ))}
         </div>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="text-[13px] font-medium text-ink-soft">Your measurements</legend>
+          <p className="text-[13px] text-muted">
+            Measure your body, not a garment. Mirra uses these to suggest Chinese sizes on Taobao,
+            Tmall and Weidian listings.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-4">
+            {MEASUREMENT_KEYS.map(([k, label, unit]) => (
+              <Field
+                key={k}
+                label={`${label} (${unit})`}
+                inputMode="decimal"
+                maxLength={5}
+                value={(prefs.sizes ?? {})[k] ?? ""}
+                onChange={(e) => {
+                  const sizes = { ...(prefs.sizes ?? {}) };
+                  const v = e.target.value.replace(/[^0-9.]/g, "");
+                  if (v) sizes[k] = v;
+                  else delete sizes[k];
+                  set("sizes", sizes);
+                }}
+              />
+            ))}
+          </div>
+        </fieldset>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field
             label="Budget from"

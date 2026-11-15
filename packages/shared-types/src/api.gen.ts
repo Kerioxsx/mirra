@@ -289,6 +289,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sizes/advice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Size Advice
+         * @description Read Chinese size labels (national codes such as 175/92A, letter sizes, waist inches or chi,
+         *     EU-style shoe sizes) and suggest the one that fits the shopper's measurements. Estimates
+         *     only; nothing is stored.
+         */
+        post: operations["sizing_size_advice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -646,6 +668,8 @@ export interface components {
              * @default false
              */
             saved: boolean;
+            /** @description Chinese size labels the listing mentions, read (estimates) */
+            size_guide?: components["schemas"]["SizeGuide"] | null;
             /**
              * Stale
              * @description True when the data is older than the refresh window
@@ -752,6 +776,20 @@ export interface components {
          * @enum {string}
          */
         MarketplaceStatus: "active" | "planned" | "blocked" | "disabled";
+        /**
+         * Measurements
+         * @description The shopper's body, not a garment's.
+         */
+        Measurements: {
+            /** Chest Cm */
+            chest_cm?: number | null;
+            /** Foot Mm */
+            foot_mm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Waist Cm */
+            waist_cm?: number | null;
+        };
         /** Money */
         Money: {
             /** Amount */
@@ -1131,6 +1169,102 @@ export interface components {
             events: components["schemas"]["EventEntry"][];
             /** Searches */
             searches: components["schemas"]["SearchEntry"][];
+        };
+        /** SizeAdvice */
+        SizeAdvice: {
+            /**
+             * Disclaimer
+             * @default Estimates from the Chinese national size code and typical Chinese size charts. Shops cut differently: the shop's own size chart wins.
+             */
+            disclaimer: string;
+            /** Readings */
+            readings: components["schemas"]["SizeReading"][];
+            /** Reason */
+            reason: string;
+            /**
+             * Suggested
+             * @description The label that fits best, or None
+             */
+            suggested: string | null;
+        };
+        /** SizeAdviceRequest */
+        SizeAdviceRequest: {
+            /**
+             * Cut
+             * @default unisex
+             * @enum {string}
+             */
+            cut: "mens" | "womens" | "unisex";
+            /**
+             * Kind
+             * @default unknown
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Labels */
+            labels: string[];
+            measurements?: components["schemas"]["Measurements"];
+        };
+        /**
+         * SizeGuide
+         * @description Size labels found on a listing (for marketplaces that use Chinese sizes).
+         */
+        SizeGuide: {
+            /**
+             * Cut
+             * @enum {string}
+             */
+            cut: "mens" | "womens" | "unisex";
+            /**
+             * Disclaimer
+             * @default Estimates from the Chinese national size code and typical Chinese size charts. Shops cut differently: the shop's own size chart wins.
+             */
+            disclaimer: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Labels */
+            labels: string[];
+            /** Readings */
+            readings: components["schemas"]["SizeReading"][];
+        };
+        /** SizeRange */
+        SizeRange: {
+            /** Max */
+            max: number;
+            /** Min */
+            min: number;
+        };
+        /** SizeReading */
+        SizeReading: {
+            /**
+             * Basis
+             * @description standard: the national size code (GB/T 1335); typical: common shop charts
+             * @enum {string}
+             */
+            basis: "standard" | "typical";
+            /** Body Type */
+            body_type?: string | null;
+            chest_cm?: components["schemas"]["SizeRange"] | null;
+            foot_mm?: components["schemas"]["SizeRange"] | null;
+            height_cm?: components["schemas"]["SizeRange"] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "gb_code" | "letter" | "waist_inches" | "waist_chi" | "eu_shoe" | "one_size";
+            waist_cm?: components["schemas"]["SizeRange"] | null;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -2134,6 +2268,39 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sizing_size_advice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SizeAdviceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SizeAdvice"];
+                };
+            };
+            /** @description Validation error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

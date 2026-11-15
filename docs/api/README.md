@@ -44,6 +44,7 @@ CI fails if they drift (`pnpm check:api`).
 | GET | `/api/v1/shopping/history` | bearer | Recent searches and listing events (50 each) |
 | DELETE | `/api/v1/shopping/history` | bearer | Delete all searches and events (saved items are kept) |
 | POST | `/api/v1/links/resolve` | — | Recognise a pasted Taobao/Tmall/Weidian/1688/KakoBuy link (no network calls): source, item id, canonical link, purchasing-agent routes and any stored Mirra listing for the same item. 422 with a shopper-facing reason for unsupported or short links. 60/min per IP. |
+| POST | `/api/v1/sizes/advice` | — | Read Chinese size labels (national codes like 175/92A, letter sizes, waist inches or chi, EU-style shoe sizes) and suggest the one that fits the given measurements. Every reading says whether it rests on the national standard or a typical chart; nothing is stored. 120/min per IP. `GET /listings/{id}` carries `size_guide` for Chinese-market listings. |
 | GET | `/api/v1/outfits` | bearer | Saved outfits with items, listing summaries and per-currency totals |
 | POST | `/api/v1/outfits` | bearer | Save a look: `{name, items: [{category, color_hex, listing_id?}]}`. Region/layer come from the backend taxonomy; slot conflicts and one-piece conflicts are rejected (422); every `listing_id` must be a stored listing of the same category. Totals are computed from stored listing prices. |
 | GET | `/api/v1/outfits/{id}` | bearer | One outfit (404 if not yours) |

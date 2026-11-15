@@ -36,6 +36,9 @@ and building an outfit happen together.
   listing with observed price history. "Similar & cheaper" finds the same look across connected
   marketplaces (replicas never suggested). Save pieces, and see searches and opened listings in a
   private, deletable Shopping History.
+- **Chinese sizes, read.** Taobao, Tmall and Weidian listings show what each size is cut for
+  (the national code such as 175/92A, typical letter sizes, waist inches or chi, shoe sizes) and
+  suggest one from your measurements, labelled as an estimate.
 - **Buy through KakoBuy.** Taobao, Tmall, Weidian and 1688 items can be bought via the KakoBuy
   purchasing agent. Paste any link (or a KakoBuy link) into Discover, or use "Other ways to buy"
   on a listing, with delivered cost from KakoBuy's published fees. Listings advertised as
@@ -86,9 +89,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 91 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 98 |
 | Shared packages (Vitest) | `pnpm test` | 34 |
-| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 19 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 20 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated
