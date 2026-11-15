@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     ebay_client_secret: SecretStr | None = None
     ebay_marketplace_id: str = "EBAY_US"
     ebay_api_base: str = "https://api.ebay.com"  # sandbox: https://api.sandbox.ebay.com
+    # Photo search: Claude reads garments in shoppers' photos (off unless a key is set)
+    anthropic_api_key: SecretStr | None = None
+    vision_model: str = "claude-opus-5-5"
+
     # eBay Partner Network campaign id: results then carry affiliate links (itemAffiliateWebUrl)
     ebay_campaign_id: str | None = None
     demo_connector_enabled: bool = True
@@ -73,6 +77,10 @@ class Settings(BaseSettings):
     forwarding_rate_per_kg: Decimal | None = None
     forwarding_currency: str = "USD"
     search_timeout_seconds: float = 8.0
+
+    @property
+    def vision_configured(self) -> bool:
+        return self.anthropic_api_key is not None
 
     @property
     def ebay_configured(self) -> bool:

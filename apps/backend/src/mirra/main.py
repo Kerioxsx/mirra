@@ -25,6 +25,7 @@ from mirra.modules.marketplaces.router import router as marketplaces_router
 from mirra.modules.outfits.router import router as outfits_router
 from mirra.modules.pricing.fx import EcbFxProvider, FxProvider, StaticFxProvider
 from mirra.modules.search.cache import MemoryPageCache, PageCache, RedisPageCache
+from mirra.modules.search.photo import ClaudeDescriber
 from mirra.modules.search.router import router as search_router
 from mirra.modules.shopping.router import router as shopping_router
 from mirra.modules.sizing.router import router as sizing_router
@@ -48,14 +49,24 @@ def build_fx() -> FxProvider:
     return EcbFxProvider() if get_settings().fx_source == "ecb" else StaticFxProvider(None)
 
 
+def build_describer() -> ClaudeDescriber | None:
+    s = get_settings()
+    if s.anthropic_api_key is None:
+        return None
+    return ClaudeDescriber(s.anthropic_api_key.get_secret_value(), s.vision_model)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     get_settings().validate_for_runtime()
     app.state.fx = build_fx()
     app.state.registry = build_registry(app.state.fx)
     app.state.page_cache = build_page_cache()
+    app.state.describer = build_describer()
     yield
     await app.state.registry.aclose()
+    if app.state.describer is not None:
+        await app.state.describer.aclose()
     await dispose_engine()
 
 
@@ -75,6 +86,7 @@ def create_app() -> FastAPI:
     app.state.fx = build_fx()
     app.state.registry = build_registry(app.state.fx)
     app.state.page_cache = build_page_cache()
+    app.state.describer = None
 
     app.add_middleware(
         CORSMiddleware,

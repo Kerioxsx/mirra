@@ -248,6 +248,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Photo Search
+         * @description Search with a photo. Claude reads the garments when the server has a key (source
+         *     ``vision``); otherwise the ``hint`` (colours worked out on the shopper's device plus the
+         *     category they picked) is searched. Marketplaces with their own image search also get the
+         *     photo. The photo is never stored.
+         */
+        post: operations["search_photo_search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/shopping/events": {
         parameters: {
             query?: never;
@@ -446,6 +469,25 @@ export interface components {
          * @enum {string}
          */
         Availability: "in_stock" | "low_stock" | "out_of_stock" | "unknown";
+        /** Body_search_photo_search */
+        Body_search_photo_search: {
+            category?: components["schemas"]["Category"] | null;
+            /**
+             * Garment
+             * @default 0
+             */
+            garment: number;
+            /**
+             * Hint
+             * @default
+             */
+            hint: string;
+            /**
+             * Image
+             * @description JPEG, PNG, WebP or GIF, up to 5 MB
+             */
+            image: string;
+        };
         /**
          * BodyRegion
          * @enum {string}
@@ -974,6 +1016,65 @@ export interface components {
         OutfitRename: {
             /** Name */
             name: string;
+        };
+        /** PhotoGarment */
+        PhotoGarment: {
+            category?: components["schemas"]["Category"] | null;
+            /** Colors */
+            colors?: string[];
+            /** Details */
+            details?: string[];
+            /** Pattern */
+            pattern?: string | null;
+            /** Query */
+            query: string;
+        };
+        /** PhotoInfo */
+        PhotoInfo: {
+            category?: components["schemas"]["Category"] | null;
+            /**
+             * Garment Index
+             * @default 0
+             */
+            garment_index: number;
+            /**
+             * Garments
+             * @description What Claude saw, most prominent first (vision only)
+             */
+            garments?: components["schemas"]["PhotoGarment"][];
+            /**
+             * Query
+             * @description The text query that was searched
+             */
+            query: string;
+            /**
+             * Source
+             * @description vision: Claude read the photo; hint: colours and category from the shopper's device; image_only: only marketplaces with their own image search were asked
+             * @enum {string}
+             */
+            source: "vision" | "hint" | "image_only";
+            /**
+             * Vision Available
+             * @description True when Mirra can read photos on this server
+             */
+            vision_available: boolean;
+        };
+        /** PhotoSearchResponse */
+        PhotoSearchResponse: {
+            /** Currency */
+            currency: string;
+            fx?: components["schemas"]["FxInfo"] | null;
+            /** Has More */
+            has_more: boolean;
+            /** Marketplaces */
+            marketplaces: components["schemas"]["MarketplaceSearchStatus"][];
+            /** Page */
+            page: number;
+            photo: components["schemas"]["PhotoInfo"];
+            /** Query */
+            query: string;
+            /** Results */
+            results: components["schemas"]["SearchResult"][];
         };
         /**
          * Preferences
@@ -2132,6 +2233,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    search_photo_search: {
+        parameters: {
+            query?: {
+                currency?: string | null;
+                ship_to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_search_photo_search"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoSearchResponse"];
                 };
             };
             /** @description Validation error */

@@ -39,6 +39,9 @@ and building an outfit happen together.
   listing with observed price history. "Similar & cheaper" finds the same look across connected
   marketplaces (replicas never suggested). Save pieces, and see searches and opened listings in a
   private, deletable Shopping History.
+- **Search with a photo.** Upload a photo in Discover: Claude reads the pieces in it when an
+  Anthropic key is configured; otherwise Mirra uses the photo's colours and the type you pick.
+  eBay also gets the photo for its own image search. Photos are never stored.
 - **Chinese sizes, read.** Taobao, Tmall and Weidian listings show what each size is cut for
   (the national code such as 175/92A, typical letter sizes, waist inches or chi, shoe sizes) and
   suggest one from your measurements, labelled as an estimate.
@@ -92,9 +95,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 105 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 111 |
 | Shared packages (Vitest) | `pnpm test` | 34 |
-| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 20 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 21 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated

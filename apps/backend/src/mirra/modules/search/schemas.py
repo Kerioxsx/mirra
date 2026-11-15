@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from mirra.core.taxonomy import Category
 from mirra.modules.marketplaces.base import Money, NormalizedListing
 from mirra.modules.pricing.landed_cost import LandedCost
 
@@ -46,3 +47,29 @@ class SearchResponse(BaseModel):
     fx: FxInfo | None = None
     page: int
     has_more: bool
+
+
+class PhotoGarment(BaseModel):
+    category: Category | None = None
+    colors: list[str] = Field(default_factory=list)
+    pattern: str | None = None
+    details: list[str] = Field(default_factory=list)
+    query: str
+
+
+class PhotoInfo(BaseModel):
+    source: Literal["vision", "hint", "image_only"] = Field(
+        description="vision: Claude read the photo; hint: colours and category from the shopper's "
+        "device; image_only: only marketplaces with their own image search were asked"
+    )
+    query: str = Field(description="The text query that was searched")
+    category: Category | None = None
+    garments: list[PhotoGarment] = Field(
+        default_factory=list, description="What Claude saw, most prominent first (vision only)"
+    )
+    garment_index: int = 0
+    vision_available: bool = Field(description="True when Mirra can read photos on this server")
+
+
+class PhotoSearchResponse(SearchResponse):
+    photo: PhotoInfo
