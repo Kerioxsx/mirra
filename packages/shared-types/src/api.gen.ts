@@ -248,6 +248,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/search/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Photo Search
+         * @description Search with a photo. Claude reads the garments when the server has a key (source
+         *     ``vision``); otherwise the ``hint`` (colours worked out on the shopper's device plus the
+         *     category they picked) is searched. Marketplaces with their own image search also get the
+         *     photo. The photo is never stored.
+         */
+        post: operations["search_photo_search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/shopping/events": {
         parameters: {
             query?: never;
@@ -284,6 +307,28 @@ export interface paths {
          * @description Delete every search and shopping event for this user. Saved items are kept.
          */
         delete: operations["shopping_clear_history"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sizes/advice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Size Advice
+         * @description Read Chinese size labels (national codes such as 175/92A, letter sizes, waist inches or chi,
+         *     EU-style shoe sizes) and suggest the one that fits the shopper's measurements. Estimates
+         *     only; nothing is stored.
+         */
+        post: operations["sizing_size_advice"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -424,6 +469,25 @@ export interface components {
          * @enum {string}
          */
         Availability: "in_stock" | "low_stock" | "out_of_stock" | "unknown";
+        /** Body_search_photo_search */
+        Body_search_photo_search: {
+            category?: components["schemas"]["Category"] | null;
+            /**
+             * Garment
+             * @default 0
+             */
+            garment: number;
+            /**
+             * Hint
+             * @default
+             */
+            hint: string;
+            /**
+             * Image
+             * @description JPEG, PNG, WebP or GIF, up to 5 MB
+             */
+            image: string;
+        };
         /**
          * BodyRegion
          * @enum {string}
@@ -646,6 +710,8 @@ export interface components {
              * @default false
              */
             saved: boolean;
+            /** @description Chinese size labels the listing mentions, read (estimates) */
+            size_guide?: components["schemas"]["SizeGuide"] | null;
             /**
              * Stale
              * @description True when the data is older than the refresh window
@@ -752,6 +818,20 @@ export interface components {
          * @enum {string}
          */
         MarketplaceStatus: "active" | "planned" | "blocked" | "disabled";
+        /**
+         * Measurements
+         * @description The shopper's body, not a garment's.
+         */
+        Measurements: {
+            /** Chest Cm */
+            chest_cm?: number | null;
+            /** Foot Mm */
+            foot_mm?: number | null;
+            /** Height Cm */
+            height_cm?: number | null;
+            /** Waist Cm */
+            waist_cm?: number | null;
+        };
         /** Money */
         Money: {
             /** Amount */
@@ -936,6 +1016,65 @@ export interface components {
         OutfitRename: {
             /** Name */
             name: string;
+        };
+        /** PhotoGarment */
+        PhotoGarment: {
+            category?: components["schemas"]["Category"] | null;
+            /** Colors */
+            colors?: string[];
+            /** Details */
+            details?: string[];
+            /** Pattern */
+            pattern?: string | null;
+            /** Query */
+            query: string;
+        };
+        /** PhotoInfo */
+        PhotoInfo: {
+            category?: components["schemas"]["Category"] | null;
+            /**
+             * Garment Index
+             * @default 0
+             */
+            garment_index: number;
+            /**
+             * Garments
+             * @description What Claude saw, most prominent first (vision only)
+             */
+            garments?: components["schemas"]["PhotoGarment"][];
+            /**
+             * Query
+             * @description The text query that was searched
+             */
+            query: string;
+            /**
+             * Source
+             * @description vision: Claude read the photo; hint: colours and category from the shopper's device; image_only: only marketplaces with their own image search were asked
+             * @enum {string}
+             */
+            source: "vision" | "hint" | "image_only";
+            /**
+             * Vision Available
+             * @description True when Mirra can read photos on this server
+             */
+            vision_available: boolean;
+        };
+        /** PhotoSearchResponse */
+        PhotoSearchResponse: {
+            /** Currency */
+            currency: string;
+            fx?: components["schemas"]["FxInfo"] | null;
+            /** Has More */
+            has_more: boolean;
+            /** Marketplaces */
+            marketplaces: components["schemas"]["MarketplaceSearchStatus"][];
+            /** Page */
+            page: number;
+            photo: components["schemas"]["PhotoInfo"];
+            /** Query */
+            query: string;
+            /** Results */
+            results: components["schemas"]["SearchResult"][];
         };
         /**
          * Preferences
@@ -1131,6 +1270,102 @@ export interface components {
             events: components["schemas"]["EventEntry"][];
             /** Searches */
             searches: components["schemas"]["SearchEntry"][];
+        };
+        /** SizeAdvice */
+        SizeAdvice: {
+            /**
+             * Disclaimer
+             * @default Estimates from the Chinese national size code and typical Chinese size charts. Shops cut differently: the shop's own size chart wins.
+             */
+            disclaimer: string;
+            /** Readings */
+            readings: components["schemas"]["SizeReading"][];
+            /** Reason */
+            reason: string;
+            /**
+             * Suggested
+             * @description The label that fits best, or None
+             */
+            suggested: string | null;
+        };
+        /** SizeAdviceRequest */
+        SizeAdviceRequest: {
+            /**
+             * Cut
+             * @default unisex
+             * @enum {string}
+             */
+            cut: "mens" | "womens" | "unisex";
+            /**
+             * Kind
+             * @default unknown
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Labels */
+            labels: string[];
+            measurements?: components["schemas"]["Measurements"];
+        };
+        /**
+         * SizeGuide
+         * @description Size labels found on a listing (for marketplaces that use Chinese sizes).
+         */
+        SizeGuide: {
+            /**
+             * Cut
+             * @enum {string}
+             */
+            cut: "mens" | "womens" | "unisex";
+            /**
+             * Disclaimer
+             * @default Estimates from the Chinese national size code and typical Chinese size charts. Shops cut differently: the shop's own size chart wins.
+             */
+            disclaimer: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Labels */
+            labels: string[];
+            /** Readings */
+            readings: components["schemas"]["SizeReading"][];
+        };
+        /** SizeRange */
+        SizeRange: {
+            /** Max */
+            max: number;
+            /** Min */
+            min: number;
+        };
+        /** SizeReading */
+        SizeReading: {
+            /**
+             * Basis
+             * @description standard: the national size code (GB/T 1335); typical: common shop charts
+             * @enum {string}
+             */
+            basis: "standard" | "typical";
+            /** Body Type */
+            body_type?: string | null;
+            chest_cm?: components["schemas"]["SizeRange"] | null;
+            foot_mm?: components["schemas"]["SizeRange"] | null;
+            height_cm?: components["schemas"]["SizeRange"] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "top" | "bottom" | "shoe" | "unknown";
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /**
+             * System
+             * @enum {string}
+             */
+            system: "gb_code" | "letter" | "waist_inches" | "waist_chi" | "eu_shoe" | "one_size";
+            waist_cm?: components["schemas"]["SizeRange"] | null;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -2020,6 +2255,51 @@ export interface operations {
             };
         };
     };
+    search_photo_search: {
+        parameters: {
+            query?: {
+                currency?: string | null;
+                ship_to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_search_photo_search"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoSearchResponse"];
+                };
+            };
+            /** @description Validation error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     shopping_record_event: {
         parameters: {
             query?: never;
@@ -2134,6 +2414,39 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sizing_size_advice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SizeAdviceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SizeAdvice"];
+                };
+            };
+            /** @description Validation error */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };

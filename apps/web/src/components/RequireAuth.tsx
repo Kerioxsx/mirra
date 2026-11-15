@@ -17,11 +17,7 @@ export function RequireAuth({ children, reason }: { children: ReactNode; reason:
   }
   if (status === "guest") {
     return (
-      <EmptyState
-        icon={<Lock className="size-5" aria-hidden="true" />}
-        eyebrow="Account needed"
-        title="Sign in to continue"
-      >
+      <EmptyState icon={<Lock className="size-5" aria-hidden="true" />} title="Sign in to continue">
         <p>{reason}</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link href="/login/" className={buttonClasses()}>

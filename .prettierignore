@@ -6,5 +6,10 @@ coverage
 pnpm-lock.yaml
 apps/backend
 apps/desktop/src-tauri
+apps/site/assets
+# hand-set HTML, checked by the taste-skill gate (Prettier would rewrap the copy and the <pre> block)
+apps/site/index.html
+.claude
+.impeccable
 packages/shared-types/src/*.gen.ts
 *.md

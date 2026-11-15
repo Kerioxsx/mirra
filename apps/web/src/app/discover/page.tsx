@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Discover" };
 export default function DiscoverPage() {
   return (
     <Page wide>
-      <PageHeader eyebrow="Discover" title="Find it anywhere.">
+      <PageHeader title="Find it anywhere.">
         One search across connected marketplaces — Taobao first — with the original listing, seller,
         price and estimated delivered cost side by side.
       </PageHeader>

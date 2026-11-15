@@ -27,8 +27,8 @@ CATALOG: tuple[CatalogEntry, ...] = (
         "https://world.taobao.com",
         IntegrationType.official_api,
         MarketplaceStatus.planned,
-        "Official overseas Taobao affiliate API (English titles, local prices, Tmall included). "
-        "Live when MIRRA_TAOBAO_APP_KEY / _APP_SECRET / _ADZONE_ID are set.",
+        "Taobao's official affiliate API for overseas shoppers: English titles, local prices, "
+        "Tmall stores included.",
     ),
     CatalogEntry(
         "ebay",
@@ -36,7 +36,7 @@ CATALOG: tuple[CatalogEntry, ...] = (
         "https://www.ebay.com",
         IntegrationType.official_api,
         MarketplaceStatus.planned,
-        "Browse API (text + image search). Live when MIRRA_EBAY_CLIENT_ID/SECRET are set.",
+        "eBay's official Browse API: new and pre-owned clothing, searched by text or photo.",
     ),
     CatalogEntry(
         "etsy",
@@ -44,7 +44,7 @@ CATALOG: tuple[CatalogEntry, ...] = (
         "https://www.etsy.com",
         IntegrationType.official_api,
         MarketplaceStatus.planned,
-        "Open API v3; strong for vintage and independent makers.",
+        "Etsy's open API: strong for vintage and independent makers.",
     ),
     CatalogEntry(
         "amazon",
@@ -52,7 +52,7 @@ CATALOG: tuple[CatalogEntry, ...] = (
         "https://www.amazon.com",
         IntegrationType.official_api,
         MarketplaceStatus.planned,
-        "Creators API (PA-API 5.0 retired); needs an Associates account with qualifying sales.",
+        "Amazon's Creators API, open to Associates accounts with qualifying sales.",
     ),
     CatalogEntry(
         "asos",
@@ -84,7 +84,7 @@ CATALOG: tuple[CatalogEntry, ...] = (
         "https://www.depop.com",
         IntegrationType.partner_api,
         MarketplaceStatus.blocked,
-        "Selling API is invite-only and seller-side; no buyer search access without a partnership.",
+        "Depop's API is invite-only and for sellers; buyer search needs a partnership.",
     ),
     CatalogEntry(
         "grailed",

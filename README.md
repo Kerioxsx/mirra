@@ -16,8 +16,10 @@ and building an outfit happen together.
 
 ## What works today
 
-- **3D Dresser.** A studio with a procedural mannequin you can shape (height, build, shoulders,
-  hips, leg length, skin, hair) and dress in parametric garments for 34 categories. You can layer
+- **3D Dresser.** A studio with a rigged avatar (`mirra-rig@1`: one continuous skinned body,
+  twenty bones, four poses) you can shape (height, build, shoulders, hips, leg length, skin, hair)
+  and dress in garments for 34 categories. Garments are built around the body and each layer
+  encloses the ones under it, so nothing pokes through, in any pose. You can layer
   pieces (a tee under a hoodie under a coat), and conflicts are handled for you (a dress replaces
   jeans, and the app says why). You can also recolour any piece, undo and redo, use camera presets
   and a turntable, pick a quality tier, and the look is saved on the device. Every garment shows how
@@ -25,6 +27,9 @@ and building an outfit happen together.
 - **Accounts on web and desktop.** Register, sign in, sessions that survive reloads (rotating refresh
   tokens; httpOnly cookie on web, OS keychain on desktop), profile, style preferences and account
   deletion.
+- **eBay.** A Browse API connector (keyword and photo search in clothing, shoes and accessories,
+  condition, seller feedback, delivery cost and dates to your country, eBay's Authenticity
+  Guarantee shown as a label) goes live once eBay developer keys are configured.
 - **Search, Taobao first.** One search fans out to every connected marketplace. Taobao queries are
   translated to Chinese, results come back with English titles. Prices are converted (≈, at ECB
   rates), delivered cost is estimated without inventing unknowns, and every listing is labelled:
@@ -34,6 +39,12 @@ and building an outfit happen together.
   listing with observed price history. "Similar & cheaper" finds the same look across connected
   marketplaces (replicas never suggested). Save pieces, and see searches and opened listings in a
   private, deletable Shopping History.
+- **Search with a photo.** Upload a photo in Discover: Claude reads the pieces in it when an
+  Anthropic key is configured; otherwise Mirra uses the photo's colours and the type you pick.
+  eBay also gets the photo for its own image search. Photos are never stored.
+- **Chinese sizes, read.** Taobao, Tmall and Weidian listings show what each size is cut for
+  (the national code such as 175/92A, typical letter sizes, waist inches or chi, shoe sizes) and
+  suggest one from your measurements, labelled as an estimate.
 - **Buy through KakoBuy.** Taobao, Tmall, Weidian and 1688 items can be bought via the KakoBuy
   purchasing agent. Paste any link (or a KakoBuy link) into Discover, or use "Other ways to buy"
   on a listing, with delivered cost from KakoBuy's published fees. Listings advertised as
@@ -48,6 +59,7 @@ and building an outfit happen together.
 
 ```
 apps/
+  site/         the website: one static page, no build step
   web/          Next.js 16 static export: the one UI for web and desktop
   desktop/      Tauri 2 shell that bundles apps/web/out, plus keychain commands
   backend/      FastAPI + SQLAlchemy + Alembic + pgvector
@@ -84,9 +96,9 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 91 |
-| Shared packages (Vitest) | `pnpm test` | 29 |
-| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 19 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 111 |
+| Shared packages (Vitest) | `pnpm test` | 34 |
+| End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 21 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 
 Quality gates: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm check:api` (generated

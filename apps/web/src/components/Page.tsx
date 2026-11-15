@@ -24,12 +24,10 @@ export function Page({
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   children,
   actions,
 }: {
-  eyebrow?: string;
   title: ReactNode;
   children?: ReactNode;
   actions?: ReactNode;
@@ -37,9 +35,6 @@ export function PageHeader({
   return (
     <header className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
       <div className="flex max-w-2xl flex-col gap-3">
-        {eyebrow ? (
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">{eyebrow}</p>
-        ) : null}
         <h1 className="font-display text-[40px] leading-[1.02] text-ink sm:text-[56px]">{title}</h1>
         {children ? (
           <div className="text-[16px] leading-relaxed text-ink-soft">{children}</div>

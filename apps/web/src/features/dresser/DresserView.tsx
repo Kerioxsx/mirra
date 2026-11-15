@@ -3,7 +3,13 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { Pause, Play, Redo2, RotateCcw, Undo2 } from "lucide-react";
-import { CAMERA_PRESETS, type CameraPreset, type Quality } from "@mirra/dresser-engine";
+import {
+  CAMERA_PRESETS,
+  POSE_LABELS,
+  type CameraPreset,
+  type PoseId,
+  type Quality,
+} from "@mirra/dresser-engine";
 import { Badge, cn, IconButton, Segmented, Spinner } from "@mirra/ui";
 import { AvatarPanel } from "./AvatarPanel";
 import { ClothesPanel } from "./ClothesPanel";
@@ -27,7 +33,8 @@ type LeftTab = "clothes" | "avatar";
 type MobileTab = "clothes" | "wearing" | "avatar";
 
 function Toolbar() {
-  const { camera, setCamera, turntable, toggleTurntable, quality, setQuality } = useView();
+  const { camera, setCamera, turntable, toggleTurntable, quality, setQuality, pose, setPose } =
+    useView();
   const canUndo = useStore(outfitStore, (s) => s.history.past.length > 0);
   const canRedo = useStore(outfitStore, (s) => s.history.future.length > 0);
   return (
@@ -80,6 +87,21 @@ function Toolbar() {
         >
           <RotateCcw className="size-4" aria-hidden="true" />
         </IconButton>
+        <label className="sr-only" htmlFor="pose">
+          Pose
+        </label>
+        <select
+          id="pose"
+          value={pose}
+          onChange={(e) => setPose(e.target.value as PoseId)}
+          className="h-9 rounded-full bg-white/8 px-3 text-[12px] font-medium text-white/85 outline-none focus-visible:ring-2 focus-visible:ring-volt"
+        >
+          {(Object.keys(POSE_LABELS) as PoseId[]).map((p) => (
+            <option key={p} value={p}>
+              {POSE_LABELS[p]}
+            </option>
+          ))}
+        </select>
         <label className="sr-only" htmlFor="quality">
           Render quality
         </label>
@@ -114,7 +136,7 @@ function Notice() {
 function Stage() {
   const outfit = useStore(outfitStore, (s) => s.history.present);
   const selected = useStore(outfitStore, (s) => s.selected);
-  const { body, appearance, quality, camera, turntable } = useView();
+  const { body, appearance, quality, camera, turntable, pose } = useView();
   return (
     <DresserStage
       outfit={outfit}
@@ -123,6 +145,7 @@ function Stage() {
       quality={quality}
       camera={camera}
       turntable={turntable}
+      pose={pose}
       selected={selected}
       onSelect={(slot) => outfitStore.getState().select(slot)}
       className="bg-stage"
@@ -130,9 +153,6 @@ function Stage() {
       <Toolbar />
       <Notice />
       <div className="pointer-events-none absolute bottom-3 left-3 flex flex-wrap gap-1.5 sm:bottom-4 sm:left-4">
-        <Badge tone="stage" title="A simplified mannequin while the rigged avatar is built">
-          Preview mannequin
-        </Badge>
         <Badge tone="stage">Drag to rotate · scroll to zoom</Badge>
       </div>
     </DresserStage>

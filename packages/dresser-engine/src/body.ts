@@ -1,7 +1,7 @@
 /**
- * Body model for the procedural mannequin (Phase 1 spike, replaced by the rigged Blender avatar in
- * Phase 5). Saved avatars store *normalized* parameters (0..1), never raw geometry, so the base mesh
- * can change without breaking saved configurations — the same contract the GLB avatar will honour.
+ * Body model: the landmarks the rigged avatar (mirra-rig@1, see rig/) is built from. Saved avatars
+ * store *normalized* parameters (0..1), never raw geometry, so the mesh can change without breaking
+ * saved configurations; a future GLB avatar honours the same contract and the same bone names.
  */
 import { Vector3 } from "three";
 
@@ -148,8 +148,8 @@ export function computeBody(p: BodyParams): BodyModel {
   const elbow = shoulderJoint.clone().addScaledVector(dir, 0.172 * H);
   const wrist = elbow.clone().addScaledVector(dir, 0.152 * H);
   const hipJoint = new Vector3(w.hip * 0.5, crotch + 0.012 * H, 0);
-  const knee = new Vector3(w.hip * 0.42, y.knee, 0.004 * H);
-  const ankle = new Vector3(w.hip * 0.4, y.ankle + 0.012 * H, -0.004 * H);
+  const knee = new Vector3(w.hip * 0.47, y.knee, 0.004 * H);
+  const ankle = new Vector3(w.hip * 0.55, y.ankle + 0.012 * H, -0.004 * H);
   return {
     H,
     depth: 0.64,
@@ -182,10 +182,41 @@ export function torsoProfile(m: BodyModel): [number, number][] {
     [(w.waist + w.chest) / 2 + 0.003 * H, (y.waist + y.chest) / 2],
     [w.chest, y.chest],
     [w.chest * 0.98, y.shoulder - 0.04 * H],
-    [w.shoulder * 0.82, y.shoulder - 0.012 * H],
-    [w.shoulder * 0.56, y.shoulder + 0.006 * H],
+    [w.shoulder * 0.76, y.shoulder - 0.01 * H],
+    [w.shoulder * 0.52, y.shoulder + 0.008 * H],
     [w.neck * 1.35, y.neckBase],
   ];
+}
+
+/**
+ * The torso's front-to-back depth as a fraction of its width, by height: rounder at the hips, flatter
+ * across the shoulders (wide but thin), round again at the neck. Keeps wide shoulders from pushing
+ * the chest forward.
+ */
+export function torsoDepth(m: BodyModel, at: number): number {
+  const { y, H } = m;
+  const pts: [number, number][] = [
+    [y.crotch, 0.7],
+    [y.hip, 0.66],
+    [y.waist, m.depth],
+    [y.chest, m.depth],
+    [y.shoulder - 0.04 * H, 0.62],
+    [y.shoulder - 0.01 * H, 0.56],
+    [y.shoulder + 0.008 * H, 0.64],
+    [y.neckBase, 0.9],
+  ];
+  if (at <= pts[0]![0]) return pts[0]![1];
+  for (let i = 1; i < pts.length; i++) {
+    const [y1, d1] = pts[i]!;
+    const [y0, d0] = pts[i - 1]!;
+    if (at <= y1) return d0 + ((d1 - d0) * (at - y0)) / (y1 - y0);
+  }
+  return pts[pts.length - 1]![1];
+}
+
+/** Torso profile with depths: (radius, y, depth) triples for the lathe. */
+export function torsoProfile3(m: BodyModel): [number, number, number][] {
+  return torsoProfile(m).map(([r, py]) => [r, py, torsoDepth(m, py)]);
 }
 
 /** Interpolated torso radius at height `at` (clamped to the profile). */

@@ -37,6 +37,11 @@ export type OutfitItemOut = Schemas["OutfitItemOut"];
 export type OutfitIn = Schemas["OutfitIn"];
 export type PurchaseRoute = Schemas["PurchaseRoute"];
 export type LinkResolution = Schemas["LinkResolution"];
+export type SizeGuide = Schemas["SizeGuide"];
+export type SizeReading = Schemas["SizeReading"];
+export type SizeAdvice = Schemas["SizeAdvice"];
+export type SizeAdviceRequest = Schemas["SizeAdviceRequest"];
+export type Measurements = Schemas["Measurements"];
 
 type TaxonomyData = typeof taxonomyData;
 

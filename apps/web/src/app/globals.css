@@ -52,8 +52,27 @@
     background: var(--mirra-volt);
     color: var(--mirra-volt-ink);
   }
-  input[type="range"] {
+  input[type="range"],
+  input[type="checkbox"],
+  input[type="radio"] {
     accent-color: var(--mirra-ink);
+  }
+  input,
+  textarea {
+    caret-color: var(--mirra-ink);
+  }
+  html {
+    scrollbar-color: var(--mirra-line-strong) transparent;
+    scrollbar-width: thin;
+  }
+  a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+  }
+  /* one focus ring for anything that doesn't draw its own */
+  :focus-visible {
+    outline: 2px solid var(--mirra-volt);
+    outline-offset: 2px;
   }
 }
 

@@ -14,10 +14,11 @@ says which one you're looking at:
 
 ## Avatar
 
-- **One standardized skeleton**: `mirra-rig@1`, a humanoid rig compatible with
-  common naming (hips, spine, spine1, spine2, neck, head, shoulders, upper/lower
-  arms, hands, upper/lower legs, feet, toes). Every rigged garment targets a rig
-  version; the garment manifest records `rig_version`.
+- **One standardized skeleton**: `mirra-rig@1`, twenty bones: `root`, `hips`, `spine`,
+  `chest`, `neck`, `head`, and per side (`.L` is the figure's own left, +x) `clavicle`,
+  `upperArm`, `forearm`, `hand`, `thigh`, `shin`, `foot`. The rest pose is an A-pose and every
+  bone's rest rotation is identity, so a pose is a list of local rotations that works for any body
+  shape. Every rigged garment targets a rig version; the garment manifest records `rig_version`.
 - **Body variation through shape keys** (morph targets) on one base mesh:
   height, build, shoulders, chest, waist, hips, leg length. Avatar
   configuration stores normalized values (0–1), not raw morph weights, so the
@@ -26,11 +27,28 @@ says which one you're looking at:
   attached to the head bone), hair colour.
 - **Presets**: a handful of starting body/appearance presets; personal photos
   are never needed.
-- **Phase 1 spike** (already in the repo): a procedural, faceless mannequin
-  built from primitives in `@mirra/dresser-engine`, driven by the same
-  normalized body parameters. It proves the stage, camera, layering and
-  outfit state end-to-end before the Blender avatar exists. It gets replaced by
-  `assets/avatars/mirra-base@1.glb` in Phase 5.
+- **The rigged avatar today** (`packages/dresser-engine/src/rig/`): the body is a signed
+  distance field of six groups of primitives (torso, head, two arms, two legs: an elliptical
+  lathe for the torso, round cones for the limbs, ellipsoids for the head, hands, feet, glutes
+  and chest), blended into one continuous surface and meshed with narrow-band surface nets. Each
+  primitive names the bone that moves it, so the same field gives the mesh and its skin weights.
+  Poses (A-pose, relaxed, weight shift, walking) blend in over ~0.4 s, with a slow breath on top
+  (off under reduced motion). A Blender-authored `assets/avatars/mirra-base@1.glb` can replace
+  the field body later without changing saved avatars, poses or bone names.
+
+### Field garments
+
+Parametric garments are built from the same field: a garment is the body offset by its fit
+(plus a draped hull for loose tops, a flared hull for coats, dresses and skirts, cones for
+straight and wide trouser legs), **united with everything worn under it pushed out by a gap**,
+then clipped to its coverage (hem, neckline, sleeve and leg lengths) as an open surface. Because
+each layer contains the layers below, nothing underneath can poke through, whatever the fits.
+Trims (ribbed hems, cuffs, collars, zips, waistbands, soles, hat bands) are thin pieces meshed on
+a finer grid. Garment vertices take their skin weights from the body point beneath them, so
+stacked layers move together in every pose; only loose fabric below the crotch blends toward
+smoother weights. Rigid accessories (glasses, watch, bag, necklace, scarf) ride on one bone.
+Meshes are cached per body shape and per stack of garments, so a colour or pose change never
+rebuilds anything and changing one layer rebuilds only the layers above it.
 
 ## Garments
 
@@ -93,8 +111,10 @@ region+layer, conflicts like "coat hides belt") live in
 
 - Lazy-load only equipped garments; prefetch on hover in the item list.
 - An LRU cache of parsed GLBs keyed by `id@version`.
-- Garment meshes are re-bound to the avatar's skeleton (`SkinnedMesh.bind`)
-  so one skeleton drives everything.
+- Garment meshes are bound to the avatar's skeleton (`SkinnedMesh.bind`)
+  so one skeleton drives everything (field garments already are).
+- Body-shape changes rebuild after the sliders settle: a quick low-detail build after 120 ms,
+  then the chosen quality.
 - Quality tiers (`low` / `medium` / `high`): DPR cap, shadows, texture tier,
   antialiasing. Stored in user preferences.
 
