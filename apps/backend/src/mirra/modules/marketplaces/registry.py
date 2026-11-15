@@ -11,6 +11,8 @@ from mirra.modules.marketplaces.base import (
 )
 from mirra.modules.marketplaces.catalog import CATALOG
 from mirra.modules.marketplaces.connectors.demo import DemoConnector
+from mirra.modules.marketplaces.connectors.ebay.client import EbayClient
+from mirra.modules.marketplaces.connectors.ebay.connector import EbayConnector
 from mirra.modules.marketplaces.connectors.taobao.connector import TaobaoConnector
 from mirra.modules.marketplaces.connectors.taobao.top import TopClient
 from mirra.modules.pricing.fx import FxProvider
@@ -87,6 +89,21 @@ def build_registry(fx: FxProvider | None = None) -> ConnectorRegistry:
                 language=s.taobao_language,
                 fx=fx,
                 translate=s.taobao_translate_queries,
+            )
+        )
+    if s.ebay_configured:
+        assert s.ebay_client_id and s.ebay_client_secret
+        connectors.append(
+            EbayConnector(
+                client=EbayClient(
+                    client_id=s.ebay_client_id,
+                    client_secret=s.ebay_client_secret.get_secret_value(),
+                    marketplace_id=s.ebay_marketplace_id,
+                    api_base=s.ebay_api_base,
+                    campaign_id=s.ebay_campaign_id,
+                    timeout=s.search_timeout_seconds,
+                ),
+                fx=fx,
             )
         )
     if s.demo_connector_enabled and not s.is_production:

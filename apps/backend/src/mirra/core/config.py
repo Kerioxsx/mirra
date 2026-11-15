@@ -41,7 +41,9 @@ class Settings(BaseSettings):
     ebay_client_id: str | None = None
     ebay_client_secret: SecretStr | None = None
     ebay_marketplace_id: str = "EBAY_US"
-    ebay_api_base: str = "https://api.ebay.com"
+    ebay_api_base: str = "https://api.ebay.com"  # sandbox: https://api.sandbox.ebay.com
+    # eBay Partner Network campaign id: results then carry affiliate links (itemAffiliateWebUrl)
+    ebay_campaign_id: str | None = None
     demo_connector_enabled: bool = True
 
     # Taobao affiliate, overseas publishers (taobao.ovs.tbk.* via the TOP router).
@@ -71,6 +73,10 @@ class Settings(BaseSettings):
     forwarding_rate_per_kg: Decimal | None = None
     forwarding_currency: str = "USD"
     search_timeout_seconds: float = 8.0
+
+    @property
+    def ebay_configured(self) -> bool:
+        return bool(self.ebay_client_id and self.ebay_client_secret)
 
     @property
     def taobao_configured(self) -> bool:

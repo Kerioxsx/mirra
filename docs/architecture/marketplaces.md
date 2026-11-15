@@ -21,7 +21,7 @@
 
 | Marketplace | Access path | Self-serve? | Fashion fit | Verdict |
 |---|---|---|---|---|
-| **eBay** | Buy **Browse API** (`item_summary/search`, `search_by_image`, `item/{id}`), OAuth client-credentials app token. eBay Partner Network for affiliate links. | **Yes** — free developer account; production keys after a short review; default call limits are enough for an MVP. | Huge new + secondhand clothing inventory, item aspects (brand, size, colour), condition, seller feedback, shipping cost. | **First connector (Phase 2).** Image search is documented but has been labelled experimental; treat it as optional and fall back to our own embeddings. |
+| **eBay** | Buy **Browse API** (`item_summary/search`, `search_by_image`, `item/{id}`), OAuth client-credentials app token. eBay Partner Network for affiliate links. | **Yes** — free developer account; production keys after a short review; default call limits are enough for an MVP. | Huge new + secondhand clothing inventory, item aspects (brand, size, colour), condition, seller feedback, shipping cost. | **Built** (`connectors/ebay/`): keyword and image search in Clothing, Shoes & Accessories (category 11450), price, condition, seller feedback, shipping cost and delivery dates for the shopper's country, eBay Partner Network links when a campaign id is set, and the Authenticity Guarantee as a label. Live once `MIRRA_EBAY_CLIENT_ID` / `MIRRA_EBAY_CLIENT_SECRET` are set. Verified against a fixture written to the documented response shape, not yet against the live API. Image search is labelled experimental by eBay. |
 | **Etsy** | Open API v3 (API key + OAuth). | Yes, app review required for commercial use. | Strong for vintage and independent makers. | **Strong second candidate.** |
 | **Amazon** | **Creators API** (PA-API 5.0 has been retired). Needs an Associates account with qualifying sales; new credentials are issued inside Associates Central. | Partially — gated on affiliate sales history. | Broad catalogue, reviews. | Phase 7, once there is affiliate traffic. |
 | **ASOS / Nike / Adidas / large retailers** | **Affiliate network product feeds** (Awin, CJ, Rakuten Advertising, Impact — which network depends on brand and region). Feeds are CSV/XML/JSON, refreshed daily. | Yes, but each advertiser approves the publisher individually. | Brand-direct new products, authentic by construction. | Build one generic **`affiliate_feed` connector** that ingests feeds into our own catalogue; search runs locally. |
@@ -35,8 +35,8 @@
 
 0. **Now:** Taobao connector (overseas affiliate API) is built and wired into search;
    live once credentials are configured. See [taobao.md](taobao.md).
-1. **Phase 2:** `ebay` connector (search, item, seller, images, sizes from
-   aspects, price, shipping, availability) + a `demo` connector that serves a
+1. **Phase 2:** `ebay` connector: search and image search are built (live with keys); item
+   details and sizes from aspects come next. Plus a `demo` connector that serves a
    small, clearly labelled sample catalogue so development and tests run
    without credentials. The demo connector is disabled in production.
 2. **Phase 2/3:** `affiliate_feed` connector framework (ingest → normalize →

@@ -27,6 +27,9 @@ and building an outfit happen together.
 - **Accounts on web and desktop.** Register, sign in, sessions that survive reloads (rotating refresh
   tokens; httpOnly cookie on web, OS keychain on desktop), profile, style preferences and account
   deletion.
+- **eBay.** A Browse API connector (keyword and photo search in clothing, shoes and accessories,
+  condition, seller feedback, delivery cost and dates to your country, eBay's Authenticity
+  Guarantee shown as a label) goes live once eBay developer keys are configured.
 - **Search, Taobao first.** One search fans out to every connected marketplace. Taobao queries are
   translated to Chinese, results come back with English titles. Prices are converted (≈, at ECB
   rates), delivered cost is estimated without inventing unknowns, and every listing is labelled:
@@ -89,7 +92,7 @@ pnpm dev:desktop
 
 | Suite | Command | Count |
 |---|---|---|
-| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 98 |
+| Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 105 |
 | Shared packages (Vitest) | `pnpm test` | 34 |
 | End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 20 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
