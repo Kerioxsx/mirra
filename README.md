@@ -16,8 +16,10 @@ and building an outfit happen together.
 
 ## What works today
 
-- **3D Dresser.** A studio with a procedural mannequin you can shape (height, build, shoulders,
-  hips, leg length, skin, hair) and dress in parametric garments for 34 categories. You can layer
+- **3D Dresser.** A studio with a rigged avatar (`mirra-rig@1`: one continuous skinned body,
+  twenty bones, four poses) you can shape (height, build, shoulders, hips, leg length, skin, hair)
+  and dress in garments for 34 categories. Garments are built around the body and each layer
+  encloses the ones under it, so nothing pokes through, in any pose. You can layer
   pieces (a tee under a hoodie under a coat), and conflicts are handled for you (a dress replaces
   jeans, and the app says why). You can also recolour any piece, undo and redo, use camera presets
   and a turntable, pick a quality tier, and the look is saved on the device. Every garment shows how
@@ -85,7 +87,7 @@ pnpm dev:desktop
 | Suite | Command | Count |
 |---|---|---|
 | Backend (real Postgres, schema rebuilt from migrations; Taobao signing vs. published vectors) | `cd apps/backend && uv run pytest` | 91 |
-| Shared packages (Vitest) | `pnpm test` | 29 |
+| Shared packages (Vitest) | `pnpm test` | 34 |
 | End-to-end (static export + API + Postgres + mock Taobao gateway, Playwright) | `pnpm --filter @mirra/web build && pnpm test:e2e` | 19 |
 | Desktop secure store (Rust) | `cd apps/desktop/src-tauri && cargo test` | 2 |
 

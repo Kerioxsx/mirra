@@ -13,6 +13,11 @@ export default tseslint.config(
       "**/dist/**",
       "**/coverage/**",
       "apps/backend/**",
+      // the website's vendored design kit (taste-skill assets), checked by its own gate
+      "apps/site/assets/**",
+      // third-party agent skills installed locally (gitignored)
+      ".claude/**",
+      ".impeccable/**",
       "apps/desktop/src-tauri/**",
       "**/*.gen.ts",
       "**/next-env.d.ts",

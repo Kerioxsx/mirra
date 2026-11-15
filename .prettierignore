@@ -6,5 +6,8 @@ coverage
 pnpm-lock.yaml
 apps/backend
 apps/desktop/src-tauri
+apps/site/assets
+.claude
+.impeccable
 packages/shared-types/src/*.gen.ts
 *.md
