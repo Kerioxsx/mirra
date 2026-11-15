@@ -183,7 +183,7 @@ function StyleSection() {
             />
           ))}
         </div>
-        <fieldset className="flex flex-col gap-3">
+        <fieldset className="mt-3 flex flex-col gap-3">
           <legend className="text-[13px] font-medium text-ink-soft">Your measurements</legend>
           <p className="text-[13px] text-muted">
             Measure your body, not a garment. Mirra uses these to suggest Chinese sizes on Taobao,
@@ -330,7 +330,7 @@ function AccountSection() {
       </div>
       {!confirming ? (
         <div>
-          <Button variant="ghost" className="text-danger" onClick={() => setConfirming(true)}>
+          <Button variant="quietDanger" onClick={() => setConfirming(true)}>
             Delete account…
           </Button>
         </div>

@@ -153,7 +153,7 @@ export function HistoryView() {
           ) : null}
         </div>
         {searches.length === 0 && events.length === 0 ? (
-          <EmptyState title="Nothing here yet" eyebrow="History">
+          <EmptyState title="Nothing here yet">
             <p>Searches and the listings you open will show up here. Only you can see them.</p>
           </EmptyState>
         ) : (

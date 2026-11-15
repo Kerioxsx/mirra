@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Heart, Shirt, Star } from "lucide-react";
+import { ArrowUpRight, Heart, ImageOff, Shirt, Star } from "lucide-react";
 import type { LandedCost, SearchResult } from "@mirra/shared-types";
 import { AuthenticityBadge, Badge, buttonClasses, cn } from "@mirra/ui";
 import { recordEvent } from "./events";
@@ -142,7 +142,7 @@ export function ResultCard({
     <article
       aria-label={l.title}
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border bg-surface",
+        "flex w-full flex-col overflow-hidden rounded-2xl border bg-surface",
         replica ? "border-danger/40" : "border-line",
       )}
     >
@@ -158,11 +158,16 @@ export function ResultCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted">No image</div>
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-[13px] text-muted">
+            <ImageOff className="size-5" aria-hidden="true" />
+            No photo from the marketplace
+          </div>
         )}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {l.is_demo ? <Badge tone="accent">Demo data</Badge> : null}
-          {l.store_badge ? <Badge tone="stage">{l.store_badge}</Badge> : null}
+          {l.store_badge && l.store_badge.toLowerCase() !== marketplaceName.toLowerCase() ? (
+            <Badge tone="stage">{l.store_badge}</Badge>
+          ) : null}
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-2.5 p-4">

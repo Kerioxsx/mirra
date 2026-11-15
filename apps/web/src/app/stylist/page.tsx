@@ -27,7 +27,6 @@ export default function StylistPage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="AI Stylist"
         title="Ask for a look."
         actions={<PhaseNote phase="Phase 4">Not live yet</PhaseNote>}
       >

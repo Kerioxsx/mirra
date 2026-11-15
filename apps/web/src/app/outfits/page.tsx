@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Saved Outfits" };
 export default function OutfitsPage() {
   return (
     <Page wide>
-      <PageHeader eyebrow="Saved Outfits" title="Looks worth keeping.">
+      <PageHeader title="Looks worth keeping.">
         Outfits you save from the dresser, with their pieces, prices and original links — synced to
         your account.
       </PageHeader>

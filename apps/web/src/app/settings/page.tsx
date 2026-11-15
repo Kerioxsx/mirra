@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Profile & Settings" };
 export default function SettingsPage() {
   return (
     <Page>
-      <PageHeader eyebrow="Profile & Settings" title="Your settings." />
+      <PageHeader title="Your settings." />
       <RequireAuth reason="Your profile and style preferences sync across web and desktop.">
         <SettingsView />
       </RequireAuth>

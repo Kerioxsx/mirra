@@ -53,6 +53,13 @@ export function MarketplaceGrid() {
           {m.notes ? <p className="text-[13px] leading-relaxed text-ink-soft">{m.notes}</p> : null}
         </li>
       ))}
+      {/* fill the last row so no empty grid gap shows through */}
+      {Array.from({ length: (3 - (state.data.length % 3)) % 3 }, (_, i) => (
+        <li key={`lg${i}`} aria-hidden="true" className="hidden bg-surface lg:block" />
+      ))}
+      {Array.from({ length: state.data.length % 2 }, (_, i) => (
+        <li key={`sm${i}`} aria-hidden="true" className="hidden bg-surface sm:block lg:hidden" />
+      ))}
     </ul>
   );
 }

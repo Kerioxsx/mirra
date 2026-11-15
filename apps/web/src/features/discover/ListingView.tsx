@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowUpRight, Heart, Shirt, Star } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Heart, ImageOff, Shirt, Star } from "lucide-react";
 import type { AlternativesResponse, ListingDetail, SearchResult } from "@mirra/shared-types";
 import { isCategory } from "@mirra/shared-types";
 import { isApiError } from "@mirra/api-client";
@@ -63,7 +63,10 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-muted">No image</div>
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-[14px] text-muted">
+            <ImageOff className="size-6" aria-hidden="true" />
+            No photo from the marketplace
+          </div>
         )}
       </div>
       {ok.length > 1 ? (
@@ -134,7 +137,7 @@ export function ListingView() {
 
   if (!id || detail.status === "error") {
     return (
-      <EmptyState title="Listing not found" eyebrow="Discover">
+      <EmptyState title="Listing not found">
         <p>{detail.status === "error" ? detail.message : "No listing was specified."}</p>
         <Link href="/discover/" className={buttonClasses("primary", "md", "mt-5")}>
           Back to Discover
@@ -170,7 +173,9 @@ export function ListingView() {
         <section className="flex flex-col gap-5" aria-label="Listing details">
           <div className="flex flex-wrap items-center gap-2">
             {l.is_demo ? <Badge tone="accent">Demo data</Badge> : null}
-            {l.store_badge ? <Badge tone="neutral">{l.store_badge}</Badge> : null}
+            {l.store_badge && l.store_badge.toLowerCase() !== d.marketplace_name.toLowerCase() ? (
+              <Badge tone="neutral">{l.store_badge}</Badge>
+            ) : null}
             <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
               {d.marketplace_name}
             </span>

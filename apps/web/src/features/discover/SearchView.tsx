@@ -138,7 +138,7 @@ export function SearchView() {
         className="flex flex-col gap-3"
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="flex h-14 flex-1 items-center gap-3 rounded-full border border-line-strong bg-surface px-5 focus-within:border-ink focus-within:ring-4 focus-within:ring-volt/40">
+          <label className="flex h-14 w-full shrink-0 items-center gap-3 rounded-full sm:w-auto sm:flex-1 border border-line-strong bg-surface px-5 focus-within:border-ink focus-within:ring-4 focus-within:ring-volt/40">
             <Search className="size-5 text-muted" aria-hidden="true" />
             <span className="sr-only">Search</span>
             <input
