@@ -59,6 +59,7 @@ and building an outfit happen together.
 
 ```
 apps/
+  site/         the website: one static page, no build step
   web/          Next.js 16 static export: the one UI for web and desktop
   desktop/      Tauri 2 shell that bundles apps/web/out, plus keychain commands
   backend/      FastAPI + SQLAlchemy + Alembic + pgvector
