@@ -84,3 +84,15 @@ cd apps/backend && uv run ruff check . && uv run ruff format --check . && uv run
 1. Change Pydantic schemas / routes in `apps/backend`.
 2. `pnpm gen:api` — regenerates `packages/shared-types/src/api.gen.ts` and `taxonomy.gen.ts`.
 3. Fix TypeScript errors, commit the generated files with the change.
+
+## Design skills (optional)
+
+The UI work uses three agent skills, pinned in `skills-lock.json` and kept out of git (they are
+large): Impeccable, Emil Kowalski's design-engineering skills and taste-skill. Restore them with:
+
+```bash
+npx skills experimental_install                                   # Emil Kowalski's skills + taste-skill
+npx impeccable install --project --providers=claude --no-hooks    # Impeccable
+```
+
+`apps/site` (the website) carries the few taste-skill files it needs, so it works without them.

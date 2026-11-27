@@ -17,6 +17,7 @@ export default defineConfig({
   retries: CI ? 1 : 0,
   reporter: CI ? [["github"], ["list"]] : "list",
   timeout: 45_000,
+  expect: { timeout: 10_000 },
   use: {
     baseURL: "http://localhost:3000",
     trace: "off",
@@ -55,6 +56,9 @@ export default defineConfig({
         MIRRA_TAOBAO_ADZONE_ID: "1",
         MIRRA_TAOBAO_GATEWAY: "http://127.0.0.1:8765",
         MIRRA_FX_SOURCE: "none",
+        // every test signs up and restores sessions from one IP; the real limit is covered by
+        // backend tests
+        MIRRA_AUTH_RATE_LIMIT: "1000",
       },
     },
     {

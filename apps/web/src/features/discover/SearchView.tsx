@@ -8,6 +8,7 @@ import { Button, cn, Spinner } from "@mirra/ui";
 import { tryOn } from "@/features/dresser/state";
 import { useAuth } from "@/lib/auth";
 import { toProductRef } from "./ListingView";
+import { PhotoSearch, type PhotoSearchResponse } from "./PhotoSearch";
 import { ResultCard } from "./ResultCard";
 import { useSaved } from "./useSaved";
 import { useSearch, type SearchInput } from "./useSearch";
@@ -84,6 +85,8 @@ export function SearchView() {
   const [currency, setCurrency] = useState("auto");
   const [priceMax, setPriceMax] = useState("");
   const [tried, setTried] = useState<string | null>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [photoResult, setPhotoResult] = useState<PhotoSearchResponse | null>(null);
 
   useEffect(() => setDraft(initialQ), [initialQ]);
 
@@ -103,13 +106,16 @@ export function SearchView() {
   );
   const state = useSearch(input);
   const saved = useSaved();
-  const data =
+  const textData =
     state.status === "ready" ? state.data : state.status === "loading" ? state.previous : null;
+  // photo results show until the next text search
+  const data = photoResult ?? textData;
   const names = Object.fromEntries((data?.marketplaces ?? []).map((m) => [m.id, m.name]));
 
   function submit(q: string) {
     const next = q.trim();
     if (!next) return;
+    setPhotoResult(null);
     router.replace(`/discover/?q=${encodeURIComponent(next)}`);
   }
   function onSubmit(e: FormEvent) {
@@ -132,7 +138,7 @@ export function SearchView() {
         className="flex flex-col gap-3"
       >
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="flex h-14 flex-1 items-center gap-3 rounded-full border border-line-strong bg-surface px-5 focus-within:border-ink focus-within:ring-4 focus-within:ring-volt/40">
+          <label className="flex h-14 w-full shrink-0 items-center gap-3 rounded-full sm:w-auto sm:flex-1 border border-line-strong bg-surface px-5 focus-within:border-ink focus-within:ring-4 focus-within:ring-volt/40">
             <Search className="size-5 text-muted" aria-hidden="true" />
             <span className="sr-only">Search</span>
             <input
@@ -149,9 +155,9 @@ export function SearchView() {
           </Button>
           <button
             type="button"
-            disabled
-            title="Photo search arrives with visual search (Phase 3)"
-            className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-line-strong px-5 text-[14px] font-medium text-muted"
+            aria-expanded={photoOpen}
+            onClick={() => setPhotoOpen((o) => !o)}
+            className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-line-strong px-5 text-[14px] font-medium text-ink-soft transition-colors hover:border-ink hover:text-ink"
           >
             <Camera className="size-5" aria-hidden="true" /> Photo
           </button>
@@ -196,7 +202,15 @@ export function SearchView() {
         </div>
       </form>
 
-      {state.status === "idle" ? (
+      {photoOpen ? (
+        <PhotoSearch
+          result={photoResult}
+          onResults={setPhotoResult}
+          onClose={() => setPhotoOpen(false)}
+        />
+      ) : null}
+
+      {state.status === "idle" && !photoResult ? (
         <div className="flex flex-wrap gap-2" aria-label="Suggestions">
           {SUGGESTIONS.map((s) => (
             <button
@@ -230,6 +244,24 @@ export function SearchView() {
               </span>
             ) : null}
           </div>
+          {photoResult ? (
+            <p role="status" className="text-[14px] text-ink-soft">
+              {photoResult.photo.query ? (
+                <>
+                  From your photo: <span className="text-ink">“{photoResult.photo.query}”</span>
+                </>
+              ) : (
+                "Matches for your photo"
+              )}
+              <span className="text-muted">
+                {photoResult.photo.source === "vision"
+                  ? " · read from the photo by Claude"
+                  : photoResult.photo.source === "hint"
+                    ? " · by its colours and the type you picked"
+                    : " · by marketplaces' own image search"}
+              </span>
+            </p>
+          ) : null}
           {tried ? (
             <p
               role="status"
@@ -243,7 +275,7 @@ export function SearchView() {
           ) : null}
           {data.results.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-line-strong p-8 text-[15px] text-ink-soft">
-              No results from the connected marketplaces for “{data.query}”.
+              No results from the connected marketplaces for “{data.query || "your photo"}”.
             </p>
           ) : (
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -139,7 +139,6 @@ export function OutfitsView() {
     return (
       <EmptyState
         icon={<Bookmark className="size-5" aria-hidden="true" />}
-        eyebrow="Saved outfits"
         title="No saved outfits yet"
       >
         <p>

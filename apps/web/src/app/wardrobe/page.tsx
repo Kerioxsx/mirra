@@ -10,7 +10,6 @@ export default function WardrobePage() {
   return (
     <Page>
       <PageHeader
-        eyebrow="My Wardrobe"
         title="Everything you own, in one place."
         actions={<PhaseNote phase="Phase 6">Wardrobe</PhaseNote>}
       >
@@ -20,7 +19,6 @@ export default function WardrobePage() {
       <RequireAuth reason="Your wardrobe is private to your account and syncs between web and desktop.">
         <EmptyState
           icon={<Archive className="size-5" aria-hidden="true" />}
-          eyebrow="Coming in Phase 6"
           title="Your wardrobe is empty"
         >
           <p>

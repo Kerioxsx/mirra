@@ -37,6 +37,16 @@ upload (validate type/size, strip EXIF, store privately)
   → user picks a mode: closest / exact / cheapest / same brand / same aesthetic / colour / silhouette
 ```
 
+**Built today** (`modules/search/photo.py`, `POST /api/v1/search/photo`): when
+`MIRRA_ANTHROPIC_API_KEY` is set, Claude (`MIRRA_VISION_MODEL`, default `claude-opus-5-5`, effort
+`low`, server-side refusal fallback on) reads the photo through structured output: is it clothing,
+and for up to four pieces the category, colours, pattern, details and a short English query. The
+chosen piece's query runs through the normal marketplace fan-out; marketplaces with image search
+(eBay `search_by_image`) also get the photo, and their matches lead. Without a key, the browser
+works out the photo's main colours itself and the shopper picks the type, so the feature still
+works. Photos are never stored; only the text query goes into Shopping History. The vector
+search and re-ranking above come with the embeddings pipeline.
+
 ## Workflow B — outfit generation
 
 ```

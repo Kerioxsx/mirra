@@ -103,9 +103,26 @@ listing pages when the item's original link is known, and shoppers can paste any
 Weidian or 1688 link into Discover. Listings advertised as replicas are never routed. See
 [purchase-agents.md](purchase-agents.md).
 
+## Sizes
+
+Taobao, Tmall, Weidian and 1688 listings get a **Chinese sizes** panel when Mirra can read the
+sizes they offer or their title mentions (`modules/sizing/`, `POST /api/v1/sizes/advice`):
+
+| Label | Read as | Basis |
+|---|---|---|
+| `175/92A` | National size code (GB/T 1335): wearer about 175 cm tall, 92 cm chest (tops) or waist (bottoms); A = body type from the chest-minus-waist difference | standard |
+| `S` … `5XL` | The code most Chinese hang tags print beside the letter (men's M = 170/88, women's M = 160/84) | typical; shops vary |
+| `29`, `2尺2` | Waist in inches, or in chi (1 chi = 33.3 cm) | typical |
+| `42` | EU-style shoe size; Chinese charts pair it with foot length as mm = 5 x size + 50 | typical |
+| `均码` | One size | typical |
+
+With the shopper's height, chest, waist or foot length (from Settings, or typed on the listing
+and kept on the device) it suggests the closest size and says it is an estimate: the shop's own
+size chart wins. Size charts on Taobao are mostly images, so Mirra never claims a garment's
+measurements, only the body a size is cut for.
+
 ## Next steps (engineering)
 
-- Chinese size mapping (Chinese sizes run small; 170/88A style codes → S/M/L).
 - Taobao Global: `/product/similar/get` for photo search, then `/product/details/query` for SKUs.
 - LLM translator behind `translate_query` for queries the glossary doesn't cover.
 

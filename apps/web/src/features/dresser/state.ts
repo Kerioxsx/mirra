@@ -16,6 +16,7 @@ import {
   type Appearance,
   type BodyParams,
   type CameraPreset,
+  type PoseId,
   type Quality,
 } from "@mirra/dresser-engine";
 import { isCategory, type Category } from "@mirra/shared-types";
@@ -116,6 +117,7 @@ interface Persisted {
   body: BodyParams;
   appearance: Appearance;
   quality: Quality;
+  pose?: PoseId;
 }
 
 function readPersisted(): Persisted | null {
@@ -146,6 +148,7 @@ interface ViewState {
   body: BodyParams;
   appearance: Appearance;
   quality: Quality;
+  pose: PoseId;
   camera: CameraPreset;
   turntable: boolean;
   hydrated: boolean;
@@ -153,6 +156,7 @@ interface ViewState {
   setBodyPreset: (b: BodyParams) => void;
   setAppearance: (a: Partial<Appearance>) => void;
   setQuality: (q: Quality) => void;
+  setPose: (p: PoseId) => void;
   setCamera: (c: CameraPreset) => void;
   toggleTurntable: () => void;
   hydrate: () => void;
@@ -162,6 +166,7 @@ export const useView = create<ViewState>()((set, get) => ({
   body: DEFAULT_BODY,
   appearance: DEFAULT_APPEARANCE,
   quality: "medium",
+  pose: "relaxed",
   camera: "full",
   turntable: false,
   hydrated: false,
@@ -169,6 +174,7 @@ export const useView = create<ViewState>()((set, get) => ({
   setBodyPreset: (b) => set({ body: b }),
   setAppearance: (a) => set({ appearance: { ...get().appearance, ...a } }),
   setQuality: (quality) => set({ quality }),
+  setPose: (pose) => set({ pose }),
   setCamera: (camera) => set({ camera }),
   toggleTurntable: () => set({ turntable: !get().turntable }),
   hydrate: () => {
@@ -186,6 +192,7 @@ export const useView = create<ViewState>()((set, get) => ({
             body: { ...DEFAULT_BODY, ...p.body },
             appearance: { ...DEFAULT_APPEARANCE, ...p.appearance },
             quality: p.quality,
+            pose: p.pose ?? "relaxed",
           }
         : {}),
     });
@@ -216,7 +223,13 @@ export function persistNow(): void {
     }
     return [];
   });
-  const data: Persisted = { items, body: v.body, appearance: v.appearance, quality: v.quality };
+  const data: Persisted = {
+    items,
+    body: v.body,
+    appearance: v.appearance,
+    quality: v.quality,
+    pose: v.pose,
+  };
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch {

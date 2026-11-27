@@ -23,7 +23,7 @@ export function Segmented<T extends string>({
       role="radiogroup"
       aria-label={label}
       className={cn(
-        "inline-flex rounded-full p-0.5",
+        "inline-flex w-fit max-w-full rounded-full p-0.5",
         tone === "stage" ? "bg-white/8" : "bg-surface-2",
       )}
     >

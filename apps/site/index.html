@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en" data-type="software" data-radius="round" data-ground="sand" data-buttons="solid" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mirra: AI fashion dresser for Taobao shoppers</title>
+<meta name="description" content="Search Taobao, Tmall and eBay in English, see the delivered cost before you buy, and try each piece on a 3D avatar of your build.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mirra: AI fashion dresser for Taobao shoppers">
+<meta property="og:description" content="Taobao, Tmall and eBay in English, with delivered cost and a 3D try-on.">
+<meta property="og:image" content="share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0e0e10">
+<!-- <link rel="canonical" href="https://[the client's domain]/"> : no domain yet -->
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<link rel="stylesheet" href="assets/icons/icon.css">
+<style>
+:root {
+  --p-bg: #0e0e10; --p-surface: #151518; --p-ink: #f1efe8; --p-muted: #8f8d86;
+  --p-accent: #d6ff3d; --p-accent-ink: #0e0e10; --p-action: #d6ff3d; --p-action-ink: #0e0e10;
+  --p-inv-bg: #f1efe8; --p-inv-surface: #dfddd7; --p-inv-ink: #0e0e10; --p-inv-muted: #595958;
+  --p-inv-accent: #0e0e10; --p-inv-accent-ink: #f1efe8; --p-inv-action: #0e0e10; --p-inv-action-ink: #f1efe8;
+  --font-display: "Instrument Sans", system-ui, sans-serif;
+  --font-text: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.028em;
+  --display-tracking-xl: -0.036em;
+  --display-stretch: 96%;
+  --ly-scale: 1.04;
+}
+</style>
+<link rel="stylesheet" href="assets/ui/base.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="assets/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/word-highlight/moment.js">
+<style>
+  /* Mirra's own screens, drawn as live HTML (the app's dark "Studio" theme) */
+  .mw { --mw-bg: #151518; --mw-surface: #1d1d21; --mw-ink: #f1efe8; --mw-soft: #c9c6bd; --mw-muted: #8f8d86;
+    --mw-line: rgb(241 239 232 / .09); --mw-volt: #d6ff3d; --mw-warn: #fdb022; --mw-bad: #f97066; --mw-good: #6ce9a6;
+    background: var(--mw-bg); color: var(--mw-ink); font: 400 13px/1.4 var(--font-text); border-radius: 14px;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 30px 70px -30px rgb(0 0 0 / .8); overflow: hidden; text-align: left; }
+  .mw-bar { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px; border-bottom: 1px solid var(--mw-line); color: var(--mw-muted); font-size: 12px; }
+  .mw-dots { display: flex; gap: 6px; } .mw-dots i { width: 10px; height: 10px; border-radius: 50%; background: #3a3e43; }
+  .mw-body { padding: 16px 16px 0; padding-right: var(--ly-cut-room, 16px); }
+  .mw-search { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid rgb(241 239 232 / .2); color: var(--mw-ink); }
+  .mw-search svg { width: 14px; height: 14px; color: var(--mw-muted); flex: none; }
+  .mw-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+  .mw-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--mw-surface); color: var(--mw-soft); font-size: 12px; white-space: nowrap; }
+  .mw-chip i { width: 6px; height: 6px; border-radius: 50%; background: var(--mw-good); }
+  .mw-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--mw-line); }
+  .mw-row:first-of-type { border-top: 0; }
+  .mw-thumb { width: 40px; height: 48px; border-radius: 8px; }
+  .mw-row b { display: block; font-weight: 500; color: var(--mw-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mw-row small { display: block; color: var(--mw-muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mw-price { text-align: right; white-space: nowrap; }
+  .mw-price strong { display: block; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .mw-price span { color: var(--mw-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .mw-tag { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .mw-tag--good { background: rgb(108 233 166 / .12); color: var(--mw-good); }
+  .mw-tag--warn { background: rgb(253 176 34 / .12); color: var(--mw-warn); }
+  .mw-tag--bad { background: rgb(249 112 102 / .14); color: var(--mw-bad); }
+  .mw-tag--plain { box-shadow: inset 0 0 0 1px rgb(241 239 232 / .2); color: var(--mw-soft); }
+  .mw-card { background: #1d1d21; color: #f1efe8; border-radius: 14px; padding: 14px 16px; font: 400 13px/1.4 var(--font-text);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 18px 40px -18px rgb(0 0 0 / .9); }
+  .mw-card h5 { margin: 0; font: 500 13px/1.3 var(--font-text); color: #f1efe8; display: flex; justify-content: space-between; gap: 8px; }
+  .mw-line { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid rgb(241 239 232 / .08); color: #c9c6bd; }
+  .mw-line:first-of-type { border-top: 0; }
+  .mw-line i { width: 18px; height: 18px; flex: none; display: grid; place-items: center; border-radius: 50%; background: rgb(214 255 61 / .16); color: #d6ff3d; font: 700 12px/1 var(--font-text); font-style: normal; }
+  .mw-line b { font-weight: 500; color: #f1efe8; }
+  .mw-cost { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+  .mw-cost dt { color: var(--mw-soft); } .mw-cost dd { margin: 0; text-align: right; }
+  .mw-cost .mw-total { padding-top: 8px; border-top: 1px solid var(--mw-line); color: var(--mw-ink); font-weight: 500; }
+  .mw-btn { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 999px; background: #f1efe8; color: #0e0e10; font-weight: 500; font-size: 13px; }
+  .mw-btn--ghost { background: transparent; color: #f1efe8; box-shadow: inset 0 0 0 1px rgb(241 239 232 / .22); }
+  .mw-label { color: var(--mw-muted); font-size: 12px; }
+  .mw-detail h4 { margin: 0 0 4px; font: 500 18px/1.25 var(--font-display); letter-spacing: -0.01em; }
+  .mw-detail .mw-big { font: 500 24px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+  .mw-section { padding: 14px 0; border-top: 1px solid var(--mw-line); }
+  .mw-sizes { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .mw-sizes th, .mw-sizes td { padding: 6px 0; text-align: left; border-top: 1px solid var(--mw-line); font-weight: 400; color: var(--mw-soft); }
+  .mw-sizes th { width: 36px; color: var(--mw-ink); font-weight: 500; }
+  .mw-sizes tr.is-on th, .mw-sizes tr.is-on td { color: #0e0e10; background: rgb(214 255 61 / .85); }
+
+  /* hero: the lit ground behind the window, one soft light */
+  .hero__art { background:
+      radial-gradient(70% 60% at 18% 12%, color-mix(in oklab, var(--ground-surface) 80%, white), transparent 70%),
+      radial-gradient(60% 50% at 90% 100%, color-mix(in oklab, var(--ground-bg) 80%, var(--ground-accent)), transparent 70%),
+      var(--ground-bg); }
+  .hero__art > .ly-piece--note { left: var(--s-6); bottom: var(--s-6); width: 300px; z-index: 2; }
+  .hero__proof { font-size: var(--t-small); color: var(--muted); }
+  @media (max-width: 1023px) { .hero__art > .ly-piece--note { left: var(--s-4); bottom: var(--s-4); width: 270px; } }
+
+  /* the app frame: the results list beside the open listing (sections-library.md, app-frame) */
+  .app.ui { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); margin-top: var(--s-7); background: #151518; border: 1px solid rgb(241 239 232 / .1); border-radius: 16px; box-shadow: 0 30px 70px -30px rgb(0 0 0 / .8); }
+  .app > .app__pane { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+  .app > .app__pane + .app__pane { border-left: 1px solid rgb(241 239 232 / .09); }
+  .app > .app__pane > .mw { border-radius: 0; box-shadow: none; height: 100%; }
+  .app > .app__pane::after { content: ""; position: absolute; inset: auto 0 0 0; height: 64px; background: linear-gradient(transparent, #151518); pointer-events: none; }
+  .app .mw-body { padding-right: 16px; }
+  .app .mw-detail { padding: 20px 24px; display: grid; gap: 4px; }
+  @media (min-width: 1024px) and (max-width: 1279px) { .app.ui { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); } }
+  @media (max-width: 1023px) {
+    .app.ui { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+    .app > .app__pane--list { max-height: 252px; }
+    .app > .app__pane--list::after { display: none; }
+    .app > .app__pane + .app__pane { border-left: 0; border-top: 1px solid rgb(241 239 232 / .09); }
+  }
+  @media (max-width: 639px) {
+    .app.ui { grid-template-rows: minmax(0, 1fr); }
+    .app > .app__pane--list { display: none; }
+    .app > .app__pane + .app__pane { border-top: 0; }
+  }
+
+  /* feature and step panels: one fragment each, on the panel's own ground */
+  #labels .panel { --p-h: 300px; }
+  #buy .panel { --p-h: 336px; }
+  @media (max-width: 639px) { #labels .panel { --p-h: 150px; } #buy .panel { --p-h: 200px; } }
+  /* phones: the hero window and the open listing show what fits, never a line cut by the frame */
+  @media (max-width: 639px) {
+    .hero__art .mw-body > div:nth-of-type(n+4) { display: none; }
+    .app .mw-detail > .mw-section:nth-of-type(n+4) { display: none; }
+  }
+  .faq-env { margin-top: var(--s-6); padding: var(--s-6); }
+  .env { margin: 0; font: 400 13px/1.7 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .mw-route { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  @media (max-width: 639px) { #labels .mw-frag > .mw-line:nth-of-type(n+3) { display: none; } }
+  /* phones: the three steps side by side in a row you swipe, so the section stays one screen */
+  @media (max-width: 639px) {
+    #buy .grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; overflow-x: auto;
+      scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(-1 * var(--s-4, 16px)); padding-inline: var(--s-4, 16px); scroll-padding-inline: var(--s-4, 16px); }
+    #buy .grid::-webkit-scrollbar { display: none; }
+    #buy .grid > .card { grid-column: auto; scroll-snap-align: start; }
+    #buy .panel { --p-h: 200px; }
+  }
+  .env .env-c { color: #8f8d86; }
+  .stage .mw-frag { width: 100%; }
+
+  /* the dresser screenshot keeps its real size; the frame crops it */
+  #dresser .stage > img { position: absolute; width: 908px; max-width: none; height: auto; border-radius: 12px;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 24px 60px -28px rgb(0 0 0 / .9); }
+  @media (max-width: 639px) { #dresser .stage > img { width: 640px; } }
+</style>
+</head>
+<body>
+<!-- type: software
+     deal: hero collage, nav nav-centre, close close-type, footer footer-dark, rhythm surface-pairs,
+           buttons solid, mark initial, ground sand, palette the client's own (Mirra's studio charcoal
+           and volt, via start.mjs brand), type instrument, radius round
+     moments: word-highlight (#principle) -->
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">Skip to content</a>
+    <a class="nav__logo" href="#top"><span class="mark mark--initial" aria-hidden="true">M</span>Mirra</a>
+    <nav class="nav__links" aria-label="Main">
+      <div class="nav__item">
+        <a class="nav__link" href="#search">Search <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <div class="nav__menu">
+          <div class="wrap grid">
+            <div class="menu-col span-3">
+              <p class="t-label">Search</p>
+              <a href="#search">Taobao in English<span>Queries translated, titles back</span></a>
+              <a href="#search">Delivered cost<span>Item, shipping and agent fees</span></a>
+            </div>
+            <div class="menu-col span-3">
+              <p class="t-label">Labels</p>
+              <a href="#labels">Replica flags<span>From the listing's own words</span></a>
+              <a href="#labels">Photo search<span>Start from a picture</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav__item"><a class="nav__link" href="#labels">Labels</a></div>
+      <div class="nav__item"><a class="nav__link" href="#dresser">Dresser</a></div>
+      <div class="nav__item"><a class="nav__link" href="#buy">KakoBuy</a></div>
+      <div class="nav__item"><a class="nav__link" href="#faq">Questions</a></div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="https://github.com/Kerioxsx/mirra">Get the source code</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--collage" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text grid hero__grid">
+      <div class="hero__text span-5">
+        <h1 id="hero-h">AI fashion dresser for Taobao shoppers</h1>
+        <p class="hero__lead">Mirra searches Taobao, Tmall and eBay in English, shows what a piece costs delivered, and puts it on a 3D avatar of your build.</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="https://github.com/Kerioxsx/mirra">Get the source code<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+          <a class="btn btn--secondary" href="#search">See how search works</a>
+        </div>
+        <p class="hero__proof">Runs on the web and on macOS, Windows and Linux.</p>
+      </div>
+      <div class="hero__art span-6 start-7" role="img" aria-label="Mirra's search results for a black zip-up hoodie: Tmall, Taobao and eBay listings, each with its label and its price in yuan or dollars and in euros">
+        <div class="ly-piece ly-piece--main mw" aria-hidden="true">
+          <div class="mw-bar"><span class="mw-dots"><i></i><i></i><i></i></span><span>Mirra · Discover</span></div>
+          <div class="mw-body">
+            <div class="mw-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>black oversized zip-up hoodie</div>
+            <div class="mw-chips"><span class="mw-chip"><i></i>Taobao 24 results</span><span class="mw-chip"><i></i>eBay 18 results</span></div>
+            <div class="mw-row"><span class="mw-thumb" style="background:#2b2c30"></span><div><b>Heavyweight black zip-up hoodie, oversized</b><small>Tmall · official flagship store</small><span class="mw-tag mw-tag--good">Brand store</span></div><div class="mw-price"><strong>¥239.00</strong><span>≈ €30.70</span></div></div>
+            <div class="mw-row"><span class="mw-thumb" style="background:#3a3b40"></span><div><b>Black zip hoodie, loose fit, 330g cotton</b><small>Taobao · street shop · 4.8</small><span class="mw-tag mw-tag--plain">Unverified</span></div><div class="mw-price"><strong>¥129.00</strong><span>≈ €16.60</span></div></div>
+            <div class="mw-row"><span class="mw-thumb" style="background:#24262a"></span><div><b>Oversized zip-up hoodie, same style</b><small>Taobao · 1,200+ sold</small><span class="mw-tag mw-tag--warn">Look-alike, not the brand</span></div><div class="mw-price"><strong>¥89.00</strong><span>≈ €11.40</span></div></div>
+            <div class="mw-row"><span class="mw-thumb" style="background:#323338"></span><div><b>Black hoodie, pre-owned, size L</b><small>eBay · 99.6% positive</small><span class="mw-tag mw-tag--plain">Pre-owned</span></div><div class="mw-price"><strong>$34.00</strong><span>≈ €31.90</span></div></div>
+            <div class="mw-row"><span class="mw-thumb" style="background:#2a2b2f"></span><div><b>Zip-up hoodie, “1:1 version”</b><small>Taobao · street shop</small><span class="mw-tag mw-tag--bad">Listed as replica</span></div><div class="mw-price"><strong>¥260.00</strong><span>≈ €33.40</span></div></div>
+          </div>
+        </div>
+        <div class="ly-piece ly-piece--note mw-card" aria-hidden="true" data-ly-steps="700">
+          <h5>Searching Taobao <span class="mw-tag mw-tag--good" data-step data-step-at="4">Done</span></h5>
+          <div class="mw-line" data-step><i>✓</i><span>Sent as <b>拉链连帽卫衣 宽松 黑色</b></span></div>
+          <div class="mw-line" data-step><i>✓</i><span>English titles, <b>24 results</b></span></div>
+          <div class="mw-line" data-step><i>✓</i><span>Delivered <b>≈ €38.90</b> to Germany</span></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="search" aria-labelledby="search-h">
+    <div class="wrap">
+      <div class="grid">
+        <h2 id="search-h" class="span-5">Every listing with its delivered cost</h2>
+        <div class="span-6 start-7 stack-4">
+          <p>Type in English. Mirra translates the query for Taobao, brings the titles back in English, converts yuan at ECB rates and adds the shipping it knows.</p>
+          <a class="link" href="#labels">See the labels</a>
+        </div>
+      </div>
+      <div class="ui app fill" role="img" aria-label="The results list beside one open listing: its price in yuan and euros, its label, the delivered cost line by line, the KakoBuy route and the Chinese sizes">
+        <div class="app__pane app__pane--list">
+          <div class="mw" aria-hidden="true">
+            <div class="mw-body">
+              <div class="mw-chips"><span class="mw-chip"><i></i>Taobao 24</span><span class="mw-chip"><i></i>eBay 18</span><span class="mw-chip">Best match</span></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#2b2c30"></span><div><b>Heavyweight black zip-up hoodie</b><small>Tmall · flagship store</small></div><div class="mw-price"><strong>¥239.00</strong><span>≈ €30.70</span></div></div>
+              <div class="mw-row" style="background:rgb(214 255 61 / .07);margin:0 -16px;padding-inline:16px"><span class="mw-thumb" style="background:#3a3b40"></span><div><b>Black zip hoodie, loose fit</b><small>Taobao · street shop</small></div><div class="mw-price"><strong>¥129.00</strong><span>≈ €16.60</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#24262a"></span><div><b>Oversized zip-up, same style</b><small>Taobao · 1,200+ sold</small></div><div class="mw-price"><strong>¥89.00</strong><span>≈ €11.40</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#323338"></span><div><b>Black hoodie, pre-owned, L</b><small>eBay · 99.6% positive</small></div><div class="mw-price"><strong>$34.00</strong><span>≈ €31.90</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#4a4c33"></span><div><b>Olive puffer vest, loose</b><small>Taobao · 800+ sold</small></div><div class="mw-price"><strong>¥129.00</strong><span>≈ €16.60</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#2f3a52"></span><div><b>Wide leg jeans, washed blue</b><small>Weidian · denim shop</small></div><div class="mw-price"><strong>¥168.00</strong><span>≈ €21.60</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#e9e4d6"></span><div><b>Heavy cotton tee, cream</b><small>Taobao · basics shop</small></div><div class="mw-price"><strong>¥59.00</strong><span>≈ €7.60</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#f2f2ee"></span><div><b>Retro court sneakers, white</b><small>eBay · new with box</small></div><div class="mw-price"><strong>$68.00</strong><span>≈ €63.80</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#1c1c1e"></span><div><b>Ribbed beanie, black</b><small>Taobao · 3,000+ sold</small></div><div class="mw-price"><strong>¥29.00</strong><span>≈ €3.70</span></div></div>
+              <div class="mw-row"><span class="mw-thumb" style="background:#6b4a2e"></span><div><b>Suede work jacket, brown</b><small>Tmall · flagship store</small></div><div class="mw-price"><strong>¥459.00</strong><span>≈ €59.00</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="app__pane app__pane--open">
+          <div class="mw" aria-hidden="true">
+            <div class="mw-detail">
+              <span class="mw-label">Taobao · street shop · 4.8</span>
+              <h4>Black zip hoodie, loose fit, 330g cotton</h4>
+              <span class="mw-label">Machine-translated title</span>
+              <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span class="mw-big">¥129.00</span><span class="mw-label">≈ €16.60 at the ECB rate of 14 Nov</span></div>
+              <div><span class="mw-tag mw-tag--plain">Unverified</span></div>
+              <div class="mw-section">
+                <dl class="mw-cost">
+                  <dt>Item</dt><dd>¥129.00</dd>
+                  <dt>Shipping inside China (包邮)</dt><dd>Free</dd>
+                  <dt>KakoBuy declaration fee</dt><dd>¥8.00</dd>
+                  <dt>International shipping, your forwarder's rate</dt><dd>≈ €21.20</dd>
+                  <dt class="mw-total">Delivered to Germany</dt><dd class="mw-total">≈ €38.90</dd>
+                </dl>
+              </div>
+              <div class="mw-section mw-route">
+                <div><b style="font-weight:500">KakoBuy</b> <span class="mw-label">buying agent</span><br><span class="mw-label">Fees from KakoBuy's published terms</span></div>
+                <span class="mw-btn">Buy via KakoBuy</span>
+              </div>
+              <div class="mw-section">
+                <span class="mw-label">Chinese sizes</span>
+                <table class="mw-sizes"><tbody>
+                  <tr><th>M</th><td>168–173 cm, chest 86–90 cm</td></tr>
+                  <tr class="is-on"><th>L</th><td>173–178 cm, chest 90–94 cm</td></tr>
+                  <tr><th>XL</th><td>178–183 cm, chest 94–98 cm</td></tr>
+                </tbody></table>
+              </div>
+              <div class="mw-section"><span class="mw-label">Prices Mirra has seen</span><br>¥139.00 on 2 Nov · ¥129.00 on 14 Nov</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section g2" id="labels" aria-labelledby="labels-h">
+    <div class="wrap">
+      <div class="group">
+        <div class="section-head">
+          <h2 id="labels-h">Labels before you click. <span class="muted">Four things every result says out loud.</span></h2>
+        </div>
+        <div class="grid">
+          <article class="card card--row span-6">
+            <h3>Flags replicas from the title</h3>
+            <p>高仿 (high imitation) or “1:1” in a title marks it as a replica. Mirra never sends those to KakoBuy.</p>
+            <div class="panel panel--flush" role="img" aria-label="A listing marked Listed as replica because its title says high imitation; it is not routed to KakoBuy">
+              <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:420px;--ax:max(24px, 50% - 210px);--ay:44px">
+                <div class="ui mw-card mw-frag" aria-hidden="true">
+                  <h5>高仿复古篮球鞋 白色 <span class="mw-tag mw-tag--bad">Listed as replica</span></h5>
+                  <div class="mw-line"><i>!</i><span>Title says <b>高仿</b> (high imitation)</span></div>
+                  <div class="mw-line"><i>!</i><span>Not routed to <b>KakoBuy</b></span></div>
+                  <div class="mw-line"><i>✓</i><span>Look-alikes from other shops shown instead</span></div>
+                </div>
+              </div></div>
+            </div>
+          </article>
+          <article class="card card--row span-6">
+            <h3>Keeps look-alikes apart from the brand</h3>
+            <p>同款 means “same style”. The card says so, and only a Tmall flagship store counts as the brand.</p>
+            <div class="panel panel--flush" role="img" aria-label="A Tmall flagship store listing labelled Brand store beside a same-style listing labelled Look-alike, not the brand">
+              <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:420px;--ax:max(24px, 50% - 210px);--ay:44px">
+                <div class="ui mw-card mw-frag" aria-hidden="true">
+                  <div class="mw-line"><span style="flex:1"><b>Puffer vest, olive</b><br><span class="mw-label">Tmall · official flagship store</span></span><span class="mw-tag mw-tag--good">Brand store</span></div>
+                  <div class="mw-line"><span style="flex:1"><b>同款 puffer vest, olive</b><br><span class="mw-label">Taobao · street shop</span></span><span class="mw-tag mw-tag--warn">Look-alike</span></div>
+                  <div class="mw-line"><span style="flex:1"><b>Puffer vest, olive</b><br><span class="mw-label">Taobao · no store claim</span></span><span class="mw-tag mw-tag--plain">Unverified</span></div>
+                </div>
+              </div></div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card card--row span-6">
+          <h3>Starts from a photo</h3>
+          <p>Upload a picture. Claude reads each piece in it, or you pick the type and Mirra uses its colours.</p>
+          <div class="panel panel--flush" role="img" aria-label="A photo read as an olive cropped puffer vest, with wide leg jeans also found in the picture">
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:420px;--ax:max(24px, 50% - 210px);--ay:44px">
+              <div class="ui mw-card mw-frag" aria-hidden="true">
+                <div style="display:flex;gap:14px;align-items:center">
+                  <span class="mw-thumb" style="width:64px;height:80px;background:linear-gradient(180deg,#5d6232 0 58%,#2f3a52 58%)"></span>
+                  <div style="display:grid;gap:6px"><span class="mw-label">From your photo, read by Claude</span><b style="font-weight:500">“olive cropped puffer vest”</b><span><span class="mw-tag mw-tag--plain">Vests</span> <span class="mw-tag mw-tag--plain">olive</span></span></div>
+                </div>
+                <div class="mw-line" style="margin-top:10px"><span class="mw-label">Also in your photo:</span><span class="mw-chip">wide leg jeans</span></div>
+              </div>
+            </div></div>
+          </div>
+        </article>
+        <article class="card card--row span-6">
+          <h3>Reads Chinese sizes</h3>
+          <p>175/92A means 175 cm tall with a 92 cm chest. Add your measurements and Mirra suggests one.</p>
+          <div class="panel panel--flush" role="img" aria-label="Chinese sizes M, L and XL with the body each is cut for, and XL suggested for a shopper 178 cm tall with a 95 cm chest">
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:420px;--ax:max(24px, 50% - 210px);--ay:44px">
+              <div class="ui mw-card mw-frag" aria-hidden="true">
+                <h5>Chinese sizes <span class="mw-label">You: 178 cm, chest 95 cm</span></h5>
+                <table class="mw-sizes" style="margin-top:8px"><tbody>
+                  <tr><th>L</th><td>175/92A · 173–178 cm, chest 90–94</td></tr>
+                  <tr class="is-on"><th>XL</th><td>180/96A · 178–183 cm, chest 94–98</td></tr>
+                  <tr><th>2XL</th><td>185/100A · 183–188 cm, chest 98–102</td></tr>
+                </tbody></table>
+                <div class="mw-line" style="margin-top:6px"><i>✓</i><span><b>Try XL.</b> An estimate: the shop's chart wins.</span></div>
+              </div>
+            </div></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section statement" id="principle" data-moment="word-highlight" aria-label="What Mirra never does">
+    <div class="wrap">
+      <p class="mo-wh__text">Mirra <strong>never invents</strong> product data. A price it can't know says unknown, a replica says replica, and a 3D preview says it is approximate.</p>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="dresser" aria-labelledby="dresser-h">
+    <div class="wrap">
+      <div class="grid">
+        <div class="span-5 stack-5">
+          <h2 id="dresser-h">Try it on a 3D avatar of your build</h2>
+          <p>Set your height, build, shoulders, hips and legs. Each layer wraps the one beneath it, so a coat never clips through a hoodie.</p>
+          <ul class="facts stack-2">
+            <li>34 garment types, from tees to boots</li>
+            <li>Four poses, from A-pose to walking</li>
+            <li>Looks saved to your account</li>
+          </ul>
+          <a class="link" href="#buy">See how buying works</a>
+        </div>
+        <div class="frame frame--split span-6 start-7">
+          <div class="stage stage--fade-br">
+            <!-- the client's own screen: Mirra's 3D dresser (apps/web, /dresser) -->
+            <img class="at-corner" src="dresser.jpg" width="908" height="720" style="--ax:56px;--ay:56px" alt="Mirra's 3D dresser: an avatar in a zip-up, tee, baggy trousers, beanie and sneakers in the weight-shift pose, beside the list of what it is wearing" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ground-surface" id="buy" aria-labelledby="buy-h">
+    <div class="wrap">
+      <div class="group">
+      <div class="section-head">
+        <h2 id="buy-h">Buy through KakoBuy in 3 steps</h2>
+      </div>
+      <div class="grid">
+        <article class="card card--row span-4">
+          <span class="step-num">1</span>
+          <h3>Paste a link</h3>
+          <p>Taobao, Tmall, Weidian, 1688 and KakoBuy links all work.</p>
+          <div class="panel panel--flush" role="img" aria-label="A pasted Weidian link recognised as Weidian item 7231904518">
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:340px;--ax:max(20px, 50% - 170px);--ay:40px">
+              <div class="ui mw-card mw-frag" aria-hidden="true">
+                <div class="mw-search" style="font-size:12px">weidian.com/item.html?itemID=7231904518</div>
+                <div class="mw-line" style="margin-top:8px"><i>✓</i><span>Weidian · item <b>7231904518</b></span></div>
+              </div>
+            </div></div>
+          </div>
+        </article>
+        <article class="card card--row span-4">
+          <span class="step-num">2</span>
+          <h3>Check the delivered cost</h3>
+          <p>KakoBuy's published fees are added before you leave Mirra.</p>
+          <div class="panel panel--flush" role="img" aria-label="The cost of a Weidian item through KakoBuy: item, declaration fee, shipping inside China and the total in euros">
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:340px;--ax:max(20px, 50% - 170px);--ay:40px">
+              <div class="ui mw-card mw-frag" aria-hidden="true">
+                <dl class="mw-cost">
+                  <dt>Item</dt><dd>¥168.00</dd>
+                  <dt>Declaration fee</dt><dd>¥8.00</dd>
+                  <dt>Shipping in China</dt><dd>¥0.00</dd>
+                  <dt class="mw-total">To KakoBuy</dt><dd class="mw-total">≈ €22.60</dd>
+                </dl>
+              </div>
+            </div></div>
+          </div>
+        </article>
+        <article class="card card--row span-4">
+          <span class="step-num">3</span>
+          <h3>Open it in KakoBuy</h3>
+          <p>The item opens in KakoBuy, ready to order. Replicas never get this button.</p>
+          <div class="panel panel--flush" role="img" aria-label="The KakoBuy route with its Buy via KakoBuy button">
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:340px;--ax:max(20px, 50% - 170px);--ay:40px">
+              <div class="ui mw-card mw-frag" aria-hidden="true">
+                <h5>KakoBuy <span class="mw-label">buying agent</span></h5>
+                <div class="mw-line">Ships to you after it reaches the warehouse</div>
+                <div style="margin-top:8px"><span class="mw-btn">Buy via KakoBuy</span></div>
+              </div>
+            </div></div>
+          </div>
+        </article>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" style="--hm: 2" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="grid">
+        <div class="span-5 stack-4">
+          <h2 id="faq-h">Questions</h2>
+          <p>The setup guide covers keys, databases and the desktop build.</p>
+          <a class="link" href="https://github.com/Kerioxsx/mirra/blob/main/docs/development/setup.md">Read the setup guide</a>
+          <div class="frame frame--lit faq-env" role="img" aria-label="The settings that switch on live Taobao, eBay and photo reading: Taobao app key, secret and adzone id, eBay client id and secret, and an Anthropic key">
+            <pre class="ui mw-card env" aria-hidden="true"><span class="env-c"># .env, each line optional</span>
+MIRRA_TAOBAO_APP_KEY=…
+MIRRA_TAOBAO_APP_SECRET=…
+MIRRA_TAOBAO_ADZONE_ID=…
+MIRRA_EBAY_CLIENT_ID=…
+MIRRA_EBAY_CLIENT_SECRET=…
+MIRRA_ANTHROPIC_API_KEY=…</pre>
+          </div>
+        </div>
+        <div class="faq span-6 start-7">
+          <div class="faq__item"><h3>Can I download Mirra?</h3><p>Not as a finished app yet. The source is on GitHub: you run the web app, or build the desktop app for macOS, Windows or Linux.</p></div>
+          <div class="faq__item"><h3>Do I need Taobao API keys?</h3><p>For live Taobao results, yes: an affiliate account, an app key and an adzone id. Without them Mirra shows a clearly marked sample catalog.</p></div>
+          <div class="faq__item"><h3>Does Mirra sell replicas?</h3><p>Mirra sells nothing. It labels listings that advertise as replicas and never sends them to KakoBuy.</p></div>
+          <div class="faq__item"><h3>Is the 3D try-on exact?</h3><p>No. It shows a garment of the same type, colour and fit on your avatar, labelled approximate.</p></div>
+          <div class="faq__item"><h3>Are my photos kept?</h3><p>No. A photo goes to Claude only when the server has an Anthropic key, and Mirra stores none.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer closing footer--dark ground-inverse" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--type">
+      <div class="section-head">
+        <h2 id="close-h">Run Mirra on your own machine</h2>
+        <p>Web and desktop from one codebase. Taobao and eBay keys are optional.</p>
+      </div>
+      <a class="btn btn--primary btn--xl btn--wide" href="https://github.com/Kerioxsx/mirra">Get the source code<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-6 stack-4">
+          <a class="footer__mark" href="#top"><span class="mark mark--initial" aria-hidden="true">M</span>Mirra</a>
+          <p class="footer__lede">AI fashion dresser for Taobao shoppers.</p>
+        </div>
+        <div class="span-3 footer__col"><h3>Mirra</h3><ul><li><a href="#search">Search</a></li><li><a href="#labels">Labels</a></li><li><a href="#dresser">Dresser</a></li><li><a href="#buy">KakoBuy</a></li></ul></div>
+        <div class="span-3 footer__col"><h3>Help</h3><ul><li><a href="#faq">Questions</a></li><li><a href="https://github.com/Kerioxsx/mirra/blob/main/docs/architecture/taobao.md">Taobao notes</a></li><li><a href="https://github.com/Kerioxsx/mirra/blob/main/docs/architecture/purchase-agents.md">KakoBuy notes</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 Mirra</span>
+        <span>Taobao, Tmall, Weidian, 1688, eBay and KakoBuy are trademarks of their owners.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+</body>
+</html>

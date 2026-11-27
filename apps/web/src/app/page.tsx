@@ -8,21 +8,18 @@ import { HeroStage } from "@/features/home/HeroStage";
 const PILLARS = [
   {
     href: "/dresser/",
-    kicker: "01 · Try on",
     title: "The 3D dresser",
     body: "Layer, swap and recolour every piece on an avatar shaped like you. Undo anything.",
     status: "Playable now",
   },
   {
     href: "/discover/",
-    kicker: "02 · Find",
     title: "Every store, one search",
-    body: "Text, photo or whole-outfit search across marketplaces, with prices and shipping side by side.",
-    status: "Next up",
+    body: "Search by text or photo across marketplaces, Taobao first, with delivered cost side by side.",
+    status: "Search now",
   },
   {
     href: "/stylist/",
-    kicker: "03 · Style",
     title: "An AI stylist that shops",
     body: "Ask for three looks under $200. It starts from what you own and explains every pick.",
     status: "Planned",
@@ -35,9 +32,6 @@ export default function HomePage() {
       <section className="relative overflow-hidden border-b border-line">
         <div className="mx-auto grid max-w-[1400px] items-center gap-10 px-4 py-10 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:py-16">
           <div className="flex flex-col gap-7">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
-              AI fashion dresser
-            </p>
             <h1 className="font-display text-[52px] leading-[0.95] text-ink sm:text-[76px] xl:text-[92px]">
               Search every store.
               <br />
@@ -81,9 +75,6 @@ export default function HomePage() {
               href={p.href}
               className="group flex flex-col gap-4 bg-paper p-6 transition-colors hover:bg-surface sm:p-8"
             >
-              <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-                {p.kicker}
-              </p>
               <h2 className="font-display text-[30px] leading-tight text-ink">{p.title}</h2>
               <p className="text-[15px] leading-relaxed text-ink-soft">{p.body}</p>
               <span className="mt-auto flex items-center justify-between pt-4 text-[13px] font-medium text-ink">

@@ -25,6 +25,7 @@ from mirra.modules.pricing import deals
 from mirra.modules.search import service
 from mirra.modules.search.context import ShopperContext, ShopperDep
 from mirra.modules.shopping.models import SavedProduct
+from mirra.modules.sizing.guide import size_guide
 
 router = APIRouter(prefix="/listings", tags=["listings"], responses={404: {"model": ErrorResponse}})
 
@@ -91,6 +92,7 @@ async def get_listing_detail(
             ]
             if r is not None
         ],
+        size_guide=size_guide(stored.listing),
     )
 
 

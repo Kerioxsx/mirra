@@ -76,7 +76,8 @@ async def test_demo_search_is_labelled_and_reports_unconnected_marketplaces(
     assert status["demo"]["status"] == "ok"
     assert (
         status["taobao"]["status"] == "not_configured"
-        and "MIRRA_TAOBAO" in status["taobao"]["message"]
+        and "affiliate API" in status["taobao"]["message"]
+        and "MIRRA_" not in status["taobao"]["message"]  # shopper-facing, no setup jargon
     )
     assert status["depop"]["status"] == "blocked"
     assert body["fx"] is None  # no rates configured in tests → foreign prices aren't converted

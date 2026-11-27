@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { CameraControls, ContactShadows, Environment, Lightformer } from "@react-three/drei";
 import type { CameraControls as CameraControlsImpl } from "@react-three/drei";
@@ -13,9 +13,9 @@ import {
   type BodyParams,
 } from "./body";
 import { CAMERA_PRESETS, type CameraPreset } from "./camera";
-import { ParametricGarment } from "./garments";
-import { Mannequin } from "./Mannequin";
 import { QUALITY, type Quality } from "./quality";
+import type { PoseId } from "./rig/poses";
+import { RiggedAvatar } from "./RiggedAvatar";
 
 export interface DresserStageProps {
   outfit: Outfit;
@@ -24,6 +24,10 @@ export interface DresserStageProps {
   quality?: Quality;
   camera?: CameraPreset;
   turntable?: boolean;
+  /** The avatar's pose (mirra-rig@1). */
+  pose?: PoseId;
+  /** A slow breath and sway; off under reduced motion either way. */
+  idle?: boolean;
   selected?: SlotKey | null;
   onSelect?: (slot: SlotKey | null) => void;
   /** Rendered on top of the canvas (toolbars, badges). */
@@ -137,7 +141,29 @@ function Floor({ contactShadows }: { contactShadows: boolean }) {
   );
 }
 
-/** The 3D dressing room: studio, mannequin, layered garments and camera rig. */
+/**
+ * Body shapes settle before the avatar is rebuilt: a quick low-detail build shortly after the last
+ * change, then the chosen quality once the sliders have been still for a moment.
+ */
+function useSettledBody(body: BodyParams, quality: Quality) {
+  const [settled, setSettled] = useState<{ body: BodyParams; quality: Quality }>(() => ({
+    body,
+    quality: "low",
+  }));
+  useEffect(() => {
+    if (settled.body === body && settled.quality === quality) return;
+    const quick =
+      settled.body === body ? null : setTimeout(() => setSettled({ body, quality: "low" }), 120);
+    const full = setTimeout(() => setSettled({ body, quality }), settled.body === body ? 30 : 900);
+    return () => {
+      if (quick) clearTimeout(quick);
+      clearTimeout(full);
+    };
+  }, [body, quality, settled]);
+  return settled;
+}
+
+/** The 3D dressing room: studio, rigged avatar, layered garments and camera rig. */
 export function DresserStage({
   outfit,
   body = DEFAULT_BODY,
@@ -145,14 +171,21 @@ export function DresserStage({
   quality = "medium",
   camera = "full",
   turntable = false,
+  pose = "relaxed",
+  idle = true,
   selected = null,
   onSelect,
   children,
   className,
 }: DresserStageProps) {
   const q = QUALITY[quality];
-  const model = useMemo(() => computeBody(body), [body]);
-  const items = layered(outfit);
+  const settled = useSettledBody(body, quality);
+  const model = useMemo(() => computeBody(settled.body), [settled.body]);
+  const items = useMemo(
+    () =>
+      layered(outfit).map(([slot, item]) => ({ slot, garment: item.garment, hex: item.colorHex })),
+    [outfit],
+  );
   return (
     <div className={className} style={{ position: "relative", width: "100%", height: "100%" }}>
       <Canvas
@@ -167,33 +200,17 @@ export function DresserStage({
       >
         <Studio shadows={q.shadows} mapSize={q.shadowMapSize} />
         <Floor contactShadows={q.contactShadows} />
-        <group>
-          <Mannequin body={model} appearance={appearance} />
-          {items.map(([slot, item]) => (
-            <group
-              key={`${slot}:${item.garment.id}`}
-              name={slot}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect?.(slot);
-              }}
-              onPointerOver={(e) => {
-                e.stopPropagation();
-                document.body.style.cursor = "pointer";
-              }}
-              onPointerOut={() => {
-                document.body.style.cursor = "";
-              }}
-            >
-              <ParametricGarment
-                garment={item.garment}
-                hex={item.colorHex}
-                body={model}
-                highlighted={slot === selected}
-              />
-            </group>
-          ))}
-        </group>
+        <RiggedAvatar
+          params={settled.body}
+          model={model}
+          appearance={appearance}
+          items={items}
+          quality={settled.quality}
+          pose={pose}
+          idle={idle}
+          selected={selected}
+          onSelect={onSelect}
+        />
         <CameraRig preset={camera} height={model.H} turntable={turntable} />
       </Canvas>
       {children}
