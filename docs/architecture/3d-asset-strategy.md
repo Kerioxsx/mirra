@@ -19,22 +19,36 @@ says which one you're looking at:
   `upperArm`, `forearm`, `hand`, `thigh`, `shin`, `foot`. The rest pose is an A-pose and every
   bone's rest rotation is identity, so a pose is a list of local rotations that works for any body
   shape. Every rigged garment targets a rig version; the garment manifest records `rig_version`.
-- **Body variation through shape keys** (morph targets) on one base mesh:
-  height, build, shoulders, chest, waist, hips, leg length. Avatar
-  configuration stores normalized values (0–1), not raw morph weights, so the
-  base mesh can be re-authored without breaking saved avatars.
-- **Appearance**: skin tone (palette + custom), hair style (separate GLBs
-  attached to the head bone), hair colour.
-- **Presets**: a handful of starting body/appearance presets; personal photos
-  are never needed.
-- **The rigged avatar today** (`packages/dresser-engine/src/rig/`): the body is a signed
-  distance field of six groups of primitives (torso, head, two arms, two legs: an elliptical
-  lathe for the torso, round cones for the limbs, ellipsoids for the head, hands, feet, glutes
-  and chest), blended into one continuous surface and meshed with narrow-band surface nets. Each
-  primitive names the bone that moves it, so the same field gives the mesh and its skin weights.
-  Poses (A-pose, relaxed, weight shift, walking) blend in over ~0.4 s, with a slow breath on top
-  (off under reduced motion). A Blender-authored `assets/avatars/mirra-base@1.glb` can replace
-  the field body later without changing saved avatars, poses or bone names.
+- **The avatar is a downloaded, professionally modelled figure**: Universal Base Characters by
+  Quaternius (CC0 1.0, [quaternius.com](https://quaternius.com)), a female and a male body with
+  textured skin, eyes, eyebrows and four hairstyles (buzz, short, bun, long).
+  `tools/avatars/build_avatars.py` turns the pack into `apps/web/public/avatars/{female,male}.glb`
+  (about 1 MB each): it swings the arms from the pack's T-pose down to the dresser's A-pose
+  (17° off the body), maps the pack's 65 joints onto `mirra-rig@1` (fingers to the hand, twist
+  bones to their limb, and so on), fits each hairstyle to the other body's head, turns the
+  underwear charcoal, and writes webp textures (the hair ones grey, so any colour can tint them).
+  Re-running it on the same pack gives byte-identical files.
+- **Body sliders** (height, build, shoulders, hips, leg length; `avatar/morph.ts`): each bone gets
+  a scale in its own frame (girth across a limb, length along it, width and depth for the pelvis
+  and ribcage) and its children move with the scaled bone, so every vertex moves by the blend its
+  skin weights already describe; then the figure is scaled to the chosen height. Saved avatars
+  store normalized values (0–1), so the model can be re-authored without breaking them.
+- **Appearance**: body (female or male), skin tone (the skin texture is tinted by the chosen tone
+  divided by its own median colour, so its shading survives), hair style and hair colour.
+- **Presets**: a handful of starting body/appearance presets; personal photos are never needed.
+- **Fitting clothes to it** (`avatar/fit.ts`): after the sliders, the mesh is measured into the
+  body model the garment builder uses: joints, landmark heights and widths, the leg's centre
+  line, and a *proxy* of its surface: star-shaped cross-sections sliced from the mesh's own
+  triangles every ~1 cm for the torso, head, each arm and leg bone, hand and foot. Sections are
+  made convex (fabric bridges hollows), smoothed without ever shrinking inside the skin, and
+  padded by 2.5 mm, so the proxy encloses the whole body (only fingertips stray) while hugging it
+  within about a centimetre. Measuring takes under 0.1 s.
+- **Skin under clothes is hidden**, triangle by triangle, wherever it is well inside a garment, and
+  hair under a hat likewise, so nothing shows through in any pose. Garment vertices take the
+  downloaded skin's own weights from the body part they lie over.
+- **The procedural body** (`rig/bodyField.ts` without a proxy: an elliptical lathe for the torso,
+  round cones for the limbs, ellipsoids for the head, hands and feet) is still built in tests and
+  remains the fallback model of the garment builder.
 
 ### Field garments
 

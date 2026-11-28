@@ -43,4 +43,9 @@ export default tseslint.config(
     files: ["**/*.{js,mjs,cjs}"],
     languageOptions: { globals: { ...globals.node } },
   },
+  {
+    // the website's own scripts run in the browser
+    files: ["apps/site/*.js"],
+    languageOptions: { globals: { ...globals.browser } },
+  },
 );

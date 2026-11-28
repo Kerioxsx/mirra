@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Group, Matrix4, Quaternion, SkinnedMesh, type Material } from "three";
+import { BufferGeometry, Group, Matrix4, Quaternion, SkinnedMesh, type Material } from "three";
 import type { GarmentDefinition, SlotKey } from "@mirra/garment-system";
+import { avatarMaterial } from "./avatar/load";
+import type { MorphedAvatar } from "./avatar/morph";
 import type { Appearance, BodyModel, BodyParams } from "./body";
 import { RIGID_BONE, RigidAccessory, garmentMaterials } from "./garments";
 import { skin } from "./materials";
-import { avatarBuilder, FIELD_TEMPLATES, type BuiltPiece, type MeshQuality } from "./rig/build";
+import { avatarBuilder, FIELD_TEMPLATES, type MeshQuality } from "./rig/build";
 import { applyPose, idleOffsets, poseQuaternions, POSES, type PoseId } from "./rig/poses";
 import { BONE, buildRig } from "./rig/skeleton";
 
@@ -17,7 +19,7 @@ export interface AvatarItem {
 }
 
 function skinnedMesh(
-  piece: BuiltPiece,
+  piece: { geometry: BufferGeometry },
   material: Material,
   rig: ReturnType<typeof buildRig>,
 ): SkinnedMesh {
@@ -40,13 +42,25 @@ function useReducedMotion() {
   return ref;
 }
 
+/** A geometry sharing another's vertex data with its own triangle list (skin hidden under clothes). */
+function withIndex(base: BufferGeometry, index: BufferGeometry["index"]): BufferGeometry {
+  if (index === base.index) return base;
+  const g = new BufferGeometry();
+  for (const [name, attr] of Object.entries(base.attributes)) g.setAttribute(name, attr);
+  g.setIndex(index);
+  g.boundingSphere = base.boundingSphere;
+  return g;
+}
+
 /**
- * The rigged avatar (mirra-rig@1): one skinned body, garments built around it and skinned to the
- * same skeleton, rigid accessories riding on their bones, and poses blended in over ~0.4 s.
+ * The rigged avatar (mirra-rig@1): the downloaded body (or the procedural mannequin without one),
+ * garments built around it and skinned to the same skeleton, rigid accessories riding on their
+ * bones, and poses blended in over ~0.4 s.
  */
 export function RiggedAvatar({
   params,
   model,
+  avatar,
   appearance,
   items,
   quality,
@@ -57,6 +71,7 @@ export function RiggedAvatar({
 }: {
   params: BodyParams;
   model: BodyModel;
+  avatar?: MorphedAvatar;
   appearance: Appearance;
   items: AvatarItem[];
   quality: MeshQuality;
@@ -66,7 +81,10 @@ export function RiggedAvatar({
   onSelect?: (slot: SlotKey | null) => void;
 }) {
   const rig = useMemo(() => buildRig(model), [model]);
-  const builder = useMemo(() => avatarBuilder(model, params, quality), [model, params, quality]);
+  const builder = useMemo(
+    () => avatarBuilder(model, params, quality, avatar),
+    [model, params, quality, avatar],
+  );
   const reduced = useReducedMotion();
 
   // geometry depends on which garments are worn (in order) and the hair, never on colours
@@ -84,25 +102,55 @@ export function RiggedAvatar({
     [builder, geometryKey],
   );
 
+  const asset = avatar?.asset;
+  // the material a downloaded mesh was authored with, tinted to the chosen skin or hair colour
+  const meshMaterial = (name: string, hex: string): Material => {
+    const def = asset?.meshes.find((m) => m.name === name);
+    return asset && def ? avatarMaterial(asset, def.material, hex) : skin(hex);
+  };
+
   const bodyMesh = useMemo(() => {
-    const m = skinnedMesh(
-      { role: "main", geometry: builder.body() },
-      skin(appearance.skinTone),
-      rig,
+    const geometry = withIndex(
+      builder.body(),
+      builder.visibleIndex("body", geometryKey, built.covering),
     );
+    const m = skinnedMesh({ geometry }, meshMaterial("body", appearance.skinTone), rig);
     m.name = "mannequin";
     return m;
-  }, [builder, rig, appearance.skinTone]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [builder, rig, built, appearance.skinTone]);
+
+  // eyes and eyebrows (downloaded avatar only)
+  const faceMeshes = useMemo(
+    () =>
+      (["eyes", "eyebrows"] as const).flatMap((name) => {
+        const geometry = builder.part(name);
+        if (!geometry) return [];
+        const mesh = skinnedMesh({ geometry }, meshMaterial(name, appearance.hairColor), rig);
+        mesh.castShadow = false;
+        return [mesh];
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [builder, rig, appearance.hairColor],
+  );
 
   const hairMeshes = useMemo(() => {
+    if (avatar) {
+      const name = `hair_${appearance.hairStyle}` as const;
+      const base = builder.part(name);
+      if (!base) return [];
+      const geometry = withIndex(base, builder.visibleIndex(name, geometryKey, built.headwear));
+      return [skinnedMesh({ geometry }, meshMaterial(name, appearance.hairColor), rig)];
+    }
     const hair = builder.hair(appearance.hairStyle);
     return hair ? hair.pieces.map((p) => skinnedMesh(p, skin(appearance.hairColor), rig)) : [];
-  }, [builder, rig, appearance.hairStyle, appearance.hairColor]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [builder, rig, built, avatar, appearance.hairStyle, appearance.hairColor]);
 
   const garmentGroups = useMemo(() => {
     const out: { slot: SlotKey; group: Group }[] = [];
     for (const item of items) {
-      const pieces = built.get(item.slot);
+      const pieces = built.pieces.get(item.slot);
       if (!pieces) continue;
       const { material, trim } = garmentMaterials(item.garment, item.hex, item.slot === selected);
       const g = new Group();
@@ -165,6 +213,9 @@ export function RiggedAvatar({
     <group>
       <primitive object={root} />
       <primitive object={bodyMesh} />
+      {faceMeshes.map((m, i) => (
+        <primitive key={`face${i}`} object={m} />
+      ))}
       {hairMeshes.map((m, i) => (
         <primitive key={`hair${i}`} object={m} />
       ))}

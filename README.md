@@ -16,8 +16,10 @@ and building an outfit happen together.
 
 ## What works today
 
-- **3D Dresser.** A studio with a rigged avatar (`mirra-rig@1`: one continuous skinned body,
-  twenty bones, four poses) you can shape (height, build, shoulders, hips, leg length, skin, hair)
+- **3D Dresser.** A studio with a downloaded, professionally modelled avatar (Quaternius'
+  Universal Base Characters, CC0: a female and a male body, four hairstyles) rigged to
+  `mirra-rig@1` (twenty bones, four poses), which you can shape (height, build, shoulders, hips,
+  leg length, skin, hair)
   and dress in garments for 34 categories. Garments are built around the body and each layer
   encloses the ones under it, so nothing pokes through, in any pose. You can layer
   pieces (a tee under a hoodie under a coat), and conflicts are handled for you (a dress replaces

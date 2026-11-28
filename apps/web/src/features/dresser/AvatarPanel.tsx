@@ -4,6 +4,7 @@ import {
   HAIR_COLORS,
   SKIN_TONES,
   type BodyParams,
+  type BodyType,
   type HairStyle,
 } from "@mirra/dresser-engine";
 import { cn, Segmented } from "@mirra/ui";
@@ -57,9 +58,21 @@ export function AvatarPanel() {
   return (
     <div className="flex flex-col gap-6">
       <p className="text-[12px] leading-relaxed text-muted">
-        No photos needed. Proportions are stored as simple 0–1 values, so your avatar carries over
-        to the full rigged model when it ships.
+        No photos needed: pick a body, then shape it with the sliders. Clothes are refitted to it
+        each time.
       </p>
+      <div className="flex flex-col gap-2">
+        <span className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted">Body</span>
+        <Segmented<BodyType>
+          label="Body"
+          value={appearance.bodyType ?? "female"}
+          onChange={(bodyType) => setAppearance({ bodyType })}
+          options={[
+            { value: "female", label: "Female" },
+            { value: "male", label: "Male" },
+          ]}
+        />
+      </div>
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted">
           Starting point
@@ -122,6 +135,7 @@ export function AvatarPanel() {
           onChange={(hairStyle) => setAppearance({ hairStyle })}
           options={[
             { value: "none", label: "None" },
+            { value: "buzz", label: "Buzz" },
             { value: "short", label: "Short" },
             { value: "bun", label: "Bun" },
             { value: "long", label: "Long" },
@@ -134,6 +148,9 @@ export function AvatarPanel() {
         value={appearance.hairColor}
         onChange={(hairColor) => setAppearance({ hairColor })}
       />
+      <p className="text-[11px] leading-relaxed text-muted">
+        Figures and hair: Universal Base Characters by Quaternius, CC0.
+      </p>
     </div>
   );
 }

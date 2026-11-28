@@ -17,8 +17,8 @@ const types = {
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
   ".woff": "font/woff",
-  ".txt": "text/plain; charset=utf-8",
   ".glb": "model/gltf-binary",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 function resolveFile(urlPath) {
