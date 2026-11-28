@@ -183,6 +183,8 @@ class SkinLookup {
 
 export interface OutfitBuild {
   pieces: Map<string, BuiltPiece[]>;
+  /** Each worn garment's field, by slot. */
+  fields: Map<string, GarmentField>;
   /** Garments that wrap the body (for hiding the skin they cover). */
   covering: GarmentField[];
   /** Hats (for hiding the hair they cover). */
@@ -413,6 +415,7 @@ export class AvatarBuilder {
    */
   outfit(items: { slot: string; garment: GarmentDefinition }[], hair: HairStyle): OutfitBuild {
     const out = new Map<string, BuiltPiece[]>();
+    const fields = new Map<string, GarmentField>();
     const covering: GarmentField[] = [];
     const headwear: GarmentField[] = [];
     const body = items
@@ -435,6 +438,7 @@ export class AvatarBuilder {
       inner.push(built.field);
       if (item.garment.parametric!.template !== "belt") covering.push(built.field);
       out.set(item.slot, built.pieces);
+      fields.set(item.slot, built.field);
     }
     const hairBuilt = this.hair(hair);
     for (const item of items) {
@@ -447,10 +451,11 @@ export class AvatarBuilder {
       );
       if (!built) continue;
       out.set(item.slot, built.pieces);
+      fields.set(item.slot, built.field);
       if (spec.template === "headwear") headwear.push(built.field);
       covering.push(built.field);
     }
-    return { pieces: out, covering, headwear };
+    return { pieces: out, fields, covering, headwear };
   }
 
   private cached(key: string, make: () => GarmentField | null) {

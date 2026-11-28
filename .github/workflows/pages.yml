@@ -1,0 +1,41 @@
+# Publishes the website (apps/site) to GitHub Pages: https://kerioxsx.github.io/mirra/
+# One-time setup: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deployment at a time; a newer push waits rather than cancelling one in flight
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Collect the site's files
+        run: |
+          mkdir -p _site
+          cp -r apps/site/. _site/
+          # working files that aren't part of the page
+          rm -rf _site/README.md _site/names.json _site/shots _site/.taste-skill
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

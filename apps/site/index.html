@@ -8,11 +8,12 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mirra: AI fashion dresser for Taobao shoppers">
 <meta property="og:description" content="Taobao, Tmall and eBay in English, with delivered cost and a 3D try-on.">
-<meta property="og:image" content="share.jpg">
+<meta property="og:image" content="https://kerioxsx.github.io/mirra/share.jpg">
+<meta property="og:url" content="https://kerioxsx.github.io/mirra/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#0e0e10">
-<!-- <link rel="canonical" href="https://[the client's domain]/"> : no domain yet -->
+<link rel="canonical" href="https://kerioxsx.github.io/mirra/">
 <meta name="site-kind" content="software">
 <meta name="page-type" content="software">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,6 +45,7 @@
 <script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
 <script src="assets/backgrounds/backgrounds.js"></script>
 <script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"}}</script>
 <link rel="modulepreload" href="assets/moments/moments.js">
 <link rel="modulepreload" href="assets/moments/lib.js">
 <link rel="modulepreload" href="assets/moments/word-highlight/moment.js">
@@ -149,10 +151,28 @@
   .env .env-c { color: #8f8d86; }
   .stage .mw-frag { width: 100%; }
 
-  /* the dresser screenshot keeps its real size; the frame crops it */
-  #dresser .stage > img { position: absolute; width: 908px; max-width: none; height: auto; border-radius: 12px;
-    box-shadow: 0 0 0 1px rgb(255 255 255 / .08), 0 24px 60px -28px rgb(0 0 0 / .9); }
-  @media (max-width: 639px) { #dresser .stage > img { width: 640px; } }
+  /* the dresser's 3D figure (dresser3d.js): the app's dark studio, the poster until WebGL is in */
+  .frame.d3 { --ratio: 100%; padding: 0; background: radial-gradient(62% 48% at 50% 40%, #1f1f24, #0c0c0e 72%); border-color: rgb(241 239 232 / .1); }
+  @media (max-width: 639px) { .frame.d3 { --ratio: 122%; } }
+  .frame.d3 > .d3__poster, .frame.d3 > .d3__canvas { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+  .frame.d3 > .d3__poster { object-fit: cover; transition: opacity .5s ease; }
+  .frame.d3 > .d3__canvas { opacity: 0; transition: opacity .5s ease; touch-action: pan-y; cursor: grab; outline: none; }
+  .frame.d3 > .d3__canvas:active { cursor: grabbing; }
+  .frame.d3 > .d3__canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--p-accent); }
+  .d3.is-3d > .d3__canvas { opacity: 1; }
+  .d3.is-3d > .d3__poster { opacity: 0; pointer-events: none; }
+  .frame.d3 > .d3__status { position: absolute; left: 50%; bottom: var(--s-5); transform: translateX(-50%); margin: 0; padding: 6px 14px;
+    border-radius: 999px; background: rgb(14 14 16 / .78); color: #c9c6bd; font: 400 13px/1.4 var(--font-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .frame.d3 > .d3__bar { position: absolute; left: var(--s-4); right: var(--s-4); bottom: var(--s-4); display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .d3:not(.is-3d) > .d3__bar { display: none; }
+  .d3__looks { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgb(14 14 16 / .72); box-shadow: inset 0 0 0 1px rgb(241 239 232 / .1); }
+  .d3__looks button { height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: none; color: #c9c6bd; font: 500 13px/1 var(--font-text); cursor: pointer; transition: background-color .2s ease, color .2s ease; }
+  .d3__looks button:hover { color: #f1efe8; }
+  .d3__looks button[aria-pressed="true"] { background: #f1efe8; color: #0e0e10; }
+  .d3__looks button:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
+  .d3__hint { color: #8f8d86; font: 400 12px/1.3 var(--font-text); white-space: nowrap; }
+  @media (max-width: 399px) { .d3__hint { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .frame.d3 > .d3__poster, .frame.d3 > .d3__canvas { transition: none; } }
 </style>
 </head>
 <body>
@@ -382,16 +402,25 @@
           <h2 id="dresser-h">Try it on a 3D avatar of your build</h2>
           <p>Set your height, build, shoulders, hips and legs. Each layer wraps the one beneath it, so a coat never clips through a hoodie.</p>
           <ul class="facts stack-2">
+            <li>Female and male figures, four hairstyles</li>
             <li>34 garment types, from tees to boots</li>
             <li>Four poses, from A-pose to walking</li>
             <li>Looks saved to your account</li>
           </ul>
           <a class="link" href="#buy">See how buying works</a>
         </div>
-        <div class="frame frame--split span-6 start-7">
-          <div class="stage stage--fade-br">
-            <!-- the client's own screen: Mirra's 3D dresser (apps/web, /dresser) -->
-            <img class="at-corner" src="dresser.jpg" width="908" height="720" style="--ax:56px;--ay:56px" alt="Mirra's 3D dresser: an avatar in a zip-up, tee, baggy trousers, beanie and sneakers in the weight-shift pose, beside the list of what it is wearing" loading="lazy">
+        <!-- the client's own product: Mirra's avatar and garments, baked by the app's dresser engine -->
+        <div class="frame d3 span-6 start-7" data-dresser3d>
+          <img class="d3__poster" src="looks/street.jpg" width="1120" height="1120" alt="Mirra's 3D figure in a charcoal zip-up over a cream tee, baggy jeans and white sneakers, her weight on one leg" loading="lazy">
+          <canvas class="d3__canvas" tabindex="0" aria-label="3D figure in a charcoal zip-up, cream tee, baggy jeans and white sneakers. Drag, or use the arrow keys, to turn it."></canvas>
+          <p class="d3__status" data-d3-status role="status" hidden></p>
+          <div class="d3__bar">
+            <div class="d3__looks" role="group" aria-label="Looks">
+              <button type="button" data-look="street" aria-pressed="true" data-label="3D figure in a charcoal zip-up, cream tee, baggy jeans and white sneakers. Drag, or use the arrow keys, to turn it.">Street</button>
+              <button type="button" data-look="office" aria-pressed="false" data-label="3D figure in a light blue shirt, charcoal trousers, a belt and brown shoes. Drag, or use the arrow keys, to turn it.">Office</button>
+              <button type="button" data-look="weekend" aria-pressed="false" data-label="3D figure in an olive dress and tan sandals. Drag, or use the arrow keys, to turn it.">Weekend</button>
+            </div>
+            <span class="d3__hint">Drag to turn</span>
           </div>
         </div>
       </div>
@@ -504,6 +533,7 @@ MIRRA_ANTHROPIC_API_KEY=…</pre>
       <div class="footer__legal">
         <span>&copy; 2026 Mirra</span>
         <span>Taobao, Tmall, Weidian, 1688, eBay and KakoBuy are trademarks of their owners.</span>
+        <span>3D figures: Universal Base Characters by Quaternius, CC0.</span>
       </div>
     </div>
   </div>
@@ -512,5 +542,6 @@ MIRRA_ANTHROPIC_API_KEY=…</pre>
 <script type="module" src="assets/system.js"></script>
 <script type="module" src="assets/motion/motion.js"></script>
 <script type="module" src="assets/layout/layout.js"></script>
+<script type="module" src="dresser3d.js"></script>
 </body>
 </html>
