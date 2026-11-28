@@ -1,9 +1,12 @@
 /**
- * Body model: the landmarks the rigged avatar (mirra-rig@1, see rig/) is built from. Saved avatars
- * store *normalized* parameters (0..1), never raw geometry, so the mesh can change without breaking
- * saved configurations; a future GLB avatar honours the same contract and the same bone names.
+ * Body model: the landmarks the rigged avatar (mirra-rig@1, see rig/) and its garments are built
+ * from. Saved avatars store *normalized* parameters (0..1), never raw geometry, so the mesh can
+ * change without breaking saved configurations. The downloaded avatar (avatar/) is measured into
+ * the same model, with its joints and a fitted proxy of its surface for the garments.
  */
 import { Vector3 } from "three";
+import type { BoneName } from "./rig/skeleton";
+import type { RoundCone, Shape, Star } from "./rig/sdf";
 
 export interface BodyParams {
   height: number;
@@ -13,9 +16,14 @@ export interface BodyParams {
   legLength: number;
 }
 
-export type HairStyle = "none" | "short" | "bun" | "long";
+export type HairStyle = "none" | "short" | "buzz" | "bun" | "long";
+export const HAIR_STYLES: readonly HairStyle[] = ["none", "buzz", "short", "bun", "long"];
+
+export type BodyType = "female" | "male";
 
 export interface Appearance {
+  /** Which downloaded body to wear the clothes (saved looks from before default to female). */
+  bodyType?: BodyType;
   skinTone: string;
   hairStyle: HairStyle;
   hairColor: string;
@@ -29,6 +37,7 @@ export const DEFAULT_BODY: BodyParams = {
   legLength: 0.5,
 };
 export const DEFAULT_APPEARANCE: Appearance = {
+  bodyType: "female",
   skinTone: "#c99a78",
   hairStyle: "short",
   hairColor: "#1d1712",
@@ -92,7 +101,23 @@ export interface Limb {
   rb: number;
 }
 
-/** All landmarks in metres. y is up, +z faces the camera; "right" means +x. */
+/** One arm or leg of the fitted proxy: upper bone, lower bone, and the hand or foot. */
+export interface LimbProxy {
+  upper: Shape;
+  lower: Shape;
+  end: Shape;
+}
+
+/** The downloaded body's surface as distance-field shapes, each enclosing its part of the mesh. */
+export interface BodyProxy {
+  torso: Star;
+  neck: RoundCone;
+  head: Star;
+  arms: { L: LimbProxy; R: LimbProxy };
+  legs: { L: LimbProxy; R: LimbProxy };
+}
+
+/** All landmarks in metres. y is up, +z faces the camera; the figure's left ("L") is +x. */
 export interface BodyModel {
   H: number;
   depth: number; // torso z/x ratio
@@ -116,6 +141,16 @@ export interface BodyModel {
   shin: Limb;
   hand: { center: Vector3; r: number };
   foot: { center: Vector3; length: number; width: number; height: number };
+  /** Measured rest-pose joints (the downloaded avatar); otherwise derived from the landmarks. */
+  joints?: Record<BoneName, Vector3>;
+  /** Measured torso: (half width, y, depth as a fraction of width), bottom to top. */
+  torso?: [number, number, number][];
+  /** Measured centre line of the legs, (y, z) bottom to top (the procedural legs are at z = 0). */
+  legZ?: [number, number][];
+  /** Measured centre of the neck (z) at its base, where necklines and collars sit. */
+  neckZ?: number;
+  /** Shapes fitted to the downloaded avatar's surface (the garments are built around these). */
+  proxy?: BodyProxy;
 }
 
 export function computeBody(p: BodyParams): BodyModel {
@@ -172,6 +207,7 @@ export function computeBody(p: BodyParams): BodyModel {
 
 /** Torso silhouette as (radius, y) pairs, bottom to top; revolved and squashed in z. */
 export function torsoProfile(m: BodyModel): [number, number][] {
+  if (m.torso) return m.torso.map(([r, py]) => [r, py]);
   const { y, w, H } = m;
   return [
     [w.hip * 0.62, y.crotch - 0.01 * H],
@@ -195,16 +231,18 @@ export function torsoProfile(m: BodyModel): [number, number][] {
  */
 export function torsoDepth(m: BodyModel, at: number): number {
   const { y, H } = m;
-  const pts: [number, number][] = [
-    [y.crotch, 0.7],
-    [y.hip, 0.66],
-    [y.waist, m.depth],
-    [y.chest, m.depth],
-    [y.shoulder - 0.04 * H, 0.62],
-    [y.shoulder - 0.01 * H, 0.56],
-    [y.shoulder + 0.008 * H, 0.64],
-    [y.neckBase, 0.9],
-  ];
+  const pts: [number, number][] = m.torso
+    ? m.torso.map(([, py, d]) => [py, d])
+    : [
+        [y.crotch, 0.7],
+        [y.hip, 0.66],
+        [y.waist, m.depth],
+        [y.chest, m.depth],
+        [y.shoulder - 0.04 * H, 0.62],
+        [y.shoulder - 0.01 * H, 0.56],
+        [y.shoulder + 0.008 * H, 0.64],
+        [y.neckBase, 0.9],
+      ];
   if (at <= pts[0]![0]) return pts[0]![1];
   for (let i = 1; i < pts.length; i++) {
     const [y1, d1] = pts[i]!;
@@ -217,6 +255,24 @@ export function torsoDepth(m: BodyModel, at: number): number {
 /** Torso profile with depths: (radius, y, depth) triples for the lathe. */
 export function torsoProfile3(m: BodyModel): [number, number, number][] {
   return torsoProfile(m).map(([r, py]) => [r, py, torsoDepth(m, py)]);
+}
+
+/** The neck's centre (z): necklines, collars and hoods are placed around it. */
+export function neckCenterZ(m: BodyModel): number {
+  return m.neckZ ?? 0.004 * m.H;
+}
+
+/** The leg's centre (z) at height `at`: where trouser legs hang from. */
+export function legCenterZ(m: BodyModel, at: number): number {
+  const pts = m.legZ;
+  if (!pts?.length) return 0;
+  if (at <= pts[0]![0]) return pts[0]![1];
+  for (let i = 1; i < pts.length; i++) {
+    const [y1, z1] = pts[i]!;
+    const [y0, z0] = pts[i - 1]!;
+    if (at <= y1) return z0 + ((z1 - z0) * (at - y0)) / (y1 - y0);
+  }
+  return pts[pts.length - 1]![1];
 }
 
 /** Interpolated torso radius at height `at` (clamped to the profile). */

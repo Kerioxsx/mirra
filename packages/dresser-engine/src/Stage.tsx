@@ -12,6 +12,9 @@ import {
   type Appearance,
   type BodyParams,
 } from "./body";
+import { fitBody } from "./avatar/fit";
+import { useAvatarAsset } from "./avatar/load";
+import { morphAvatar } from "./avatar/morph";
 import { CAMERA_PRESETS, type CameraPreset } from "./camera";
 import { QUALITY, type Quality } from "./quality";
 import type { PoseId } from "./rig/poses";
@@ -30,6 +33,8 @@ export interface DresserStageProps {
   idle?: boolean;
   selected?: SlotKey | null;
   onSelect?: (slot: SlotKey | null) => void;
+  /** Where the avatar files (female.glb, male.glb) are served from. */
+  avatarBase?: string;
   /** Rendered on top of the canvas (toolbars, badges). */
   children?: ReactNode;
   className?: string;
@@ -175,12 +180,22 @@ export function DresserStage({
   idle = true,
   selected = null,
   onSelect,
+  avatarBase = "/avatars/",
   children,
   className,
 }: DresserStageProps) {
   const q = QUALITY[quality];
   const settled = useSettledBody(body, quality);
-  const model = useMemo(() => computeBody(settled.body), [settled.body]);
+  const file = useAvatarAsset(`${avatarBase}${appearance.bodyType ?? "female"}.glb`);
+  const asset = file.status === "ready" ? file.asset : null;
+  const avatar = useMemo(
+    () => (asset ? morphAvatar(asset, settled.body) : undefined),
+    [asset, settled.body],
+  );
+  const model = useMemo(
+    () => (avatar ? fitBody(avatar) : computeBody(settled.body)),
+    [avatar, settled.body],
+  );
   const items = useMemo(
     () =>
       layered(outfit).map(([slot, item]) => ({ slot, garment: item.garment, hex: item.colorHex })),
@@ -200,19 +215,38 @@ export function DresserStage({
       >
         <Studio shadows={q.shadows} mapSize={q.shadowMapSize} />
         <Floor contactShadows={q.contactShadows} />
-        <RiggedAvatar
-          params={settled.body}
-          model={model}
-          appearance={appearance}
-          items={items}
-          quality={settled.quality}
-          pose={pose}
-          idle={idle}
-          selected={selected}
-          onSelect={onSelect}
-        />
+        {avatar ? (
+          <RiggedAvatar
+            params={settled.body}
+            model={model}
+            avatar={avatar}
+            appearance={appearance}
+            items={items}
+            quality={settled.quality}
+            pose={pose}
+            idle={idle}
+            selected={selected}
+            onSelect={onSelect}
+          />
+        ) : null}
         <CameraRig preset={camera} height={model.H} turntable={turntable} />
       </Canvas>
+      {file.status !== "ready" ? (
+        <div
+          role="status"
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            color: "#a9a9b0",
+            fontSize: 13,
+            pointerEvents: "none",
+          }}
+        >
+          {file.status === "loading" ? "Loading the avatar…" : "Couldn't load the avatar."}
+        </div>
+      ) : null}
       {children}
     </div>
   );

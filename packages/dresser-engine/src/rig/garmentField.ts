@@ -8,7 +8,14 @@
  * narrow ring between the layer below and this one, which reads as the fabric's edge.
  */
 import type { Fit, ParametricSpec } from "@mirra/garment-system";
-import { radiusAt, torsoDepth, torsoProfile } from "../body";
+import {
+  legCenterZ,
+  neckCenterZ,
+  radiusAt,
+  torsoDepth,
+  torsoProfile,
+  type HairStyle,
+} from "../body";
 import type { BodyField, GroupName } from "./bodyField";
 import type { SDF } from "./mesher";
 import {
@@ -195,9 +202,12 @@ export class GarmentBuilder {
 
   /** The neck opening: a hole around the neck above the collar line (lower at the front). */
   private neckHole(collarY: number, rN: number, frontDrop: number): SDF {
-    const zc = 0.004 * this.H;
+    const zc = neckCenterZ(this.body.m);
     return (x, y, z) =>
-      -Math.max(collarY - frontDrop * Math.max(0, z) - y, sdEllipse2(x, z - zc, rN, rN * 0.94));
+      -Math.max(
+        collarY - frontDrop * Math.max(0, z - zc) - y,
+        sdEllipse2(x, z - zc, rN, rN * 0.94),
+      );
   }
 
   // ---------------------------------------------------------------- tops, dresses, jumpsuits
@@ -307,7 +317,7 @@ export class GarmentBuilder {
     let cheap = u.cheap;
     if (spec.hood) {
       const hood = ellipsoid(
-        [0, y.neckBase + 0.004 * H, -0.058 * H],
+        [0, y.neckBase + 0.004 * H, neckCenterZ(this.body.m) - 0.062 * H],
         [0.06 * H, 0.036 * H, 0.04 * H],
       );
       const o = own;
@@ -336,6 +346,7 @@ export class GarmentBuilder {
           u.rN * 0.94 + minor * 0.7,
           minor,
           2.2,
+          neckCenterZ(this.body.m),
         ),
       );
     }
@@ -393,8 +404,10 @@ export class GarmentBuilder {
     const torso = this.g("torso");
     const hulls: Shape[] = [];
     for (const s of [1, -1] as const) {
-      const top: V3 = [th.a.x * s, y.crotch + 0.02 * H, 0];
-      const bottom: V3 = [m.shin.b.x * s * 1.05, hemY - 0.01 * H, 0.002 * H];
+      const topY = y.crotch + 0.02 * H;
+      const bottomY = hemY - 0.01 * H;
+      const top: V3 = [th.a.x * s, topY, legCenterZ(m, topY)];
+      const bottom: V3 = [m.shin.b.x * s * 1.05, bottomY, legCenterZ(m, bottomY) + 0.002 * H];
       const rTop = th.ra * (1.02 + fs * 1.4) + this.base;
       const rBottom =
         shape === "wide"
@@ -409,7 +422,7 @@ export class GarmentBuilder {
         const py = (y.crotch + y.knee) / 2;
         hulls.push(
           box(
-            [s * (th.a.x + th.ra * 0.86), py, 0.004 * H],
+            [s * (th.a.x + th.ra * 0.86), py, legCenterZ(m, py) + 0.004 * H],
             [0.014 * H, 0.04 * H, 0.032 * H],
             0.008 * H,
           ),
@@ -537,16 +550,21 @@ export class GarmentBuilder {
     const coverage: SDF = (_px, py) => py - topY;
     const bounds = clipY(this.body.bounds(["legL", "legR"], 0.02 * H), -0.02 * H, topY + 0.02 * H);
     const field = this.finish(own, coverage, [], bounds);
+    // soles: the shoe's own outline, a little wider, in a slab under the foot
+    const soleOff = off + 0.0028 * H;
+    const soleTop = 0.45 * soleH;
+    const floor = -0.004 * H;
     const soles: Piece[] = [1, -1].map((s) => {
-      const c: V3 = [f.center.x * s, soleH / 2 - 0.004 * H, f.center.z + 0.002 * H];
-      const h: V3 = [f.width / 2 + 0.0028 * H, soleH / 2, f.length / 2 + 0.0035 * H];
-      const shape = box(c, h, Math.min(h[1] * 0.95, 0.008 * H));
+      const leg = s === 1 ? legL : legR;
+      const pad = 0.012 * H;
+      const c = f.center;
       return {
         role: "trim" as const,
-        sdf: (px: number, py: number, pz: number) => sdShape(shape, px, py, pz),
+        sdf: (px: number, py: number, pz: number) =>
+          Math.max(leg(px, py, pz) - soleOff, py - soleTop, floor - py),
         bounds: {
-          min: [c[0] - h[0] - 0.01, c[1] - h[1] - 0.01, c[2] - h[2] - 0.01],
-          max: [c[0] + h[0] + 0.01, c[1] + h[1] + 0.01, c[2] + h[2] + 0.01],
+          min: [c.x * s - f.width / 2 - pad, floor - 0.004 * H, c.z - f.length / 2 - pad],
+          max: [c.x * s + f.width / 2 + pad, soleTop + 0.004 * H, c.z + f.length / 2 + pad],
         },
         groups: [s === 1 ? "legL" : "legR"] as GroupName[],
         spacing: 0.004 * H,
@@ -557,7 +575,7 @@ export class GarmentBuilder {
   }
 
   /** Hair: a rigid shell on the head bone. */
-  hair(style: "none" | "short" | "bun" | "long"): GarmentField | null {
+  hair(style: HairStyle): GarmentField | null {
     if (style === "none") return null;
     const { m } = this.body;
     const { y, H, headR: R } = m;
@@ -697,15 +715,15 @@ export class GarmentBuilder {
 
   // ---------------------------------------------------------------- trims
 
-  private bandPiece(yc: number, a: number, b: number, minor: number, tall: number): Piece {
-    const t = band(yc, a, b, minor, tall);
+  private bandPiece(yc: number, a: number, b: number, minor: number, tall: number, cz = 0): Piece {
+    const t = band(yc, a, b, minor, tall, 0, cz);
     return {
       role: "trim",
       spacing: minor * 0.55,
       sdf: (px, py, pz) => sdShape(t, px, py, pz),
       bounds: {
-        min: [-a - minor * 2, yc - minor * tall * 2, -b - minor * 2],
-        max: [a + minor * 2, yc + minor * tall * 2, b + minor * 2],
+        min: [-a - minor * 2, yc - minor * tall * 2, cz - b - minor * 2],
+        max: [a + minor * 2, yc + minor * tall * 2, cz + b + minor * 2],
       },
     };
   }

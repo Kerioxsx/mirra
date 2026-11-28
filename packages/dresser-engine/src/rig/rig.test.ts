@@ -109,7 +109,7 @@ describe("garment fields", () => {
       garment: genericGarment(c),
     }));
     const t0 = performance.now();
-    const out = b.outfit(items, "short");
+    const out = b.outfit(items, "short").pieces;
     const ms = performance.now() - t0;
     expect([...out.keys()].sort()).toEqual([...items.map((i) => i.slot)].sort());
     for (const pieces of out.values()) {

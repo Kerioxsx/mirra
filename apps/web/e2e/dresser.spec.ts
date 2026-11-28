@@ -11,6 +11,8 @@ test.beforeEach(async ({ page }) => {
 
 test("renders the 3D stage with the starter look", async ({ page }) => {
   await expect(wearing(page)).toHaveText("Now wearing · 5");
+  // the downloaded avatar has loaded (its status line goes away)
+  await expect(page.getByRole("status").filter({ hasText: "avatar" })).toHaveCount(0);
   // the WebGL canvas actually draws something (not a blank frame)
   await page.waitForTimeout(1500);
   const painted = await page
@@ -81,4 +83,18 @@ test("the look survives a reload on this device", async ({ page }) => {
     "aria-pressed",
     "true",
   );
+});
+
+test("switches between the female and male bodies", async ({ page }) => {
+  await page.getByRole("tab", { name: "Avatar" }).first().click();
+  const male = page.waitForResponse((r) => r.url().endsWith("/avatars/male.glb") && r.ok());
+  await page.getByRole("radio", { name: "Male", exact: true }).click();
+  await male;
+  await expect(page.getByRole("radio", { name: "Male", exact: true })).toBeChecked();
+  await expect(page.getByRole("status").filter({ hasText: "avatar" })).toHaveCount(0);
+  await page.getByRole("radio", { name: "Buzz", exact: true }).click();
+  await page.reload();
+  await page.getByRole("tab", { name: "Avatar" }).first().click();
+  await expect(page.getByRole("radio", { name: "Male", exact: true })).toBeChecked();
+  await expect(page.getByRole("radio", { name: "Buzz", exact: true })).toBeChecked();
 });

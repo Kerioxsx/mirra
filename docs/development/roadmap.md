@@ -70,7 +70,9 @@ the feature is implemented **and** covered by passing tests.
 
 ## Phase 5 — 3D dresser (weeks 10–13)
 
-- [ ] Blender base avatar `mirra-base@1` (rig + shape keys) replacing the procedural mannequin
+- [x] A real base avatar replacing the procedural mannequin: Quaternius' CC0 Universal Base
+      Characters (female and male, four hairstyles), converted to `mirra-rig@1` with body sliders,
+      fitted garments and hidden skin under clothes
 - [ ] Curated GLB library (~20 garments), manifest validation in CI, KTX2/meshopt pipeline
 - [ ] GLB loader with skeleton re-binding and LRU cache
 - [x] Outfits API + account-synced saved outfits (save from the dresser, reopen, rename, delete)

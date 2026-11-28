@@ -1,0 +1,9 @@
+female.glb and male.glb
+
+Figures, textures and hairstyles: "Universal Base Characters" by Quaternius
+https://quaternius.com
+License: CC0 1.0 Universal (public domain dedication)
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Converted for Mirra's 3D dresser (A-pose, mirra-rig@1 skeleton, webp textures) by
+tools/avatars/build_avatars.py in the Mirra repository.

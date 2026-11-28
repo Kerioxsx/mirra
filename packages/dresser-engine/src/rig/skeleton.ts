@@ -37,7 +37,7 @@ export const BONE: Record<BoneName, number> = Object.fromEntries(
   BONE_NAMES.map((n, i) => [n, i]),
 ) as Record<BoneName, number>;
 
-const PARENT: Record<BoneName, BoneName | null> = {
+export const PARENT: Record<BoneName, BoneName | null> = {
   root: null,
   hips: "root",
   spine: "hips",
@@ -65,6 +65,7 @@ const PARENT: Record<BoneName, BoneName | null> = {
  * the camera along +z.
  */
 export function restJoints(m: BodyModel): Record<BoneName, Vector3> {
+  if (m.joints) return m.joints;
   const { y, w, H } = m;
   const side = (v: Vector3, s: 1 | -1) => new Vector3(v.x * s, v.y, v.z);
   const clav = new Vector3(w.neck * 0.7, y.shoulder - 0.01 * H, 0);

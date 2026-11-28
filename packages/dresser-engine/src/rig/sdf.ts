@@ -319,7 +319,82 @@ export function sdBox(b: Box, px: number, py: number, pz: number): number {
   return Math.sqrt(ox * ox + oy * oy + oz * oz) + Math.min(Math.max(qx, qy, qz), 0) - b.round;
 }
 
-export type Shape = RoundCone | Ellipsoid | Lathe | Band | Box;
+/**
+ * A measured solid: star-shaped cross-sections stacked along an axis (y for the torso and head, z
+ * for a foot). Each level stores the section's centre and its radius at evenly spaced angles,
+ * measured from the downloaded body's mesh; radii are interpolated with Catmull-Rom splines in both
+ * directions, so the surface is smooth between the measurements.
+ */
+export interface Star {
+  kind: "star";
+  /** 1: levels along y, sections in x-z. 2: levels along z, sections in x-y. */
+  axis: 1 | 2;
+  a0: number;
+  da: number;
+  /** Number of levels. */
+  n: number;
+  /** Angles per level (even). */
+  m: number;
+  /** Section centres per level (x, and z or y). */
+  cu: Float64Array;
+  cv: Float64Array;
+  /** Radii, level-major: r[i * m + j] at angle 2πj/m. */
+  r: Float64Array;
+}
+
+const catmull = (p0: number, p1: number, p2: number, p3: number, t: number): [number, number] => {
+  const a = -0.5 * p0 + 1.5 * p1 - 1.5 * p2 + 0.5 * p3;
+  const b = p0 - 2.5 * p1 + 2 * p2 - 0.5 * p3;
+  const c = -0.5 * p0 + 0.5 * p2;
+  return [((a * t + b) * t + c) * t + p1, (3 * a * t + 2 * b) * t + c];
+};
+
+export function sdStar(s: Star, px: number, py: number, pz: number): number {
+  const a = s.axis === 1 ? py : pz;
+  const top = s.a0 + (s.n - 1) * s.da;
+  const ca = Math.min(top, Math.max(s.a0, a));
+  const t = (ca - s.a0) / s.da;
+  const i = Math.min(s.n - 2, Math.floor(t));
+  const f = t - i;
+  const cu = s.cu[i]! + (s.cu[i + 1]! - s.cu[i]!) * f;
+  const cv = s.cv[i]! + (s.cv[i + 1]! - s.cv[i]!) * f;
+  const du = px - cu;
+  const dv = (s.axis === 1 ? pz : py) - cv;
+  const rho = Math.sqrt(du * du + dv * dv);
+  const m = s.m;
+  let q = (Math.atan2(dv, du) / (2 * Math.PI)) * m;
+  if (q < 0) q += m;
+  const j = Math.floor(q) % m;
+  const g = q - Math.floor(q);
+  // 4x4 Catmull-Rom patch: rows by level (clamped), columns by angle (wrapped)
+  const rows: number[] = [];
+  const drows: number[] = [];
+  for (let di = -1; di <= 2; di++) {
+    const li = Math.min(s.n - 1, Math.max(0, i + di)) * m;
+    const [v, dv2] = catmull(
+      s.r[li + ((j + m - 1) % m)]!,
+      s.r[li + j]!,
+      s.r[li + ((j + 1) % m)]!,
+      s.r[li + ((j + 2) % m)]!,
+      g,
+    );
+    rows.push(v);
+    drows.push(dv2);
+  }
+  const [r, drt] = catmull(rows[0]!, rows[1]!, rows[2]!, rows[3]!, f);
+  const [drq] = catmull(drows[0]!, drows[1]!, drows[2]!, drows[3]!, f);
+  // slopes: around the section (per radian) and along the axis (per metre)
+  // (capped: past a 45° slope the correction starts to underestimate distances off to the side,
+  // which would show as ridges once a garment is offset from this surface)
+  const dTheta = Math.min(1, Math.abs((drq * m) / (2 * Math.PI) / Math.max(rho, 0.25 * r, 1e-4)));
+  const dA = Math.min(1, Math.abs(drt / s.da));
+  const d2 = (rho - r) / Math.sqrt(1 + dTheta * dTheta + dA * dA);
+  const out = a < s.a0 ? s.a0 - a : a > top ? a - top : 0;
+  if (out === 0) return d2;
+  return d2 > 0 ? Math.sqrt(d2 * d2 + out * out) : Math.max(d2, out);
+}
+
+export type Shape = RoundCone | Ellipsoid | Lathe | Band | Box | Star;
 
 export function sdShape(s: Shape, px: number, py: number, pz: number): number {
   switch (s.kind) {
@@ -333,6 +408,8 @@ export function sdShape(s: Shape, px: number, py: number, pz: number): number {
       return sdBand(s, px, py, pz);
     case "box":
       return sdBox(s, px, py, pz);
+    case "star":
+      return sdStar(s, px, py, pz);
   }
 }
 
@@ -391,5 +468,16 @@ export function shapeBounds(s: Shape, pad: number, into: AABB = emptyBox()): AAB
     case "box":
       growBox(into, s.c[0] - s.h[0] - pad, s.c[1] - s.h[1] - pad, s.c[2] - s.h[2] - pad);
       return growBox(into, s.c[0] + s.h[0] + pad, s.c[1] + s.h[1] + pad, s.c[2] + s.h[2] + pad);
+    case "star": {
+      for (let i = 0; i < s.n; i++) {
+        let rmax = 0;
+        for (let j = 0; j < s.m; j++) rmax = Math.max(rmax, s.r[i * s.m + j]!);
+        const a = s.a0 + i * s.da;
+        const r = rmax + pad;
+        if (s.axis === 1) growBox(into, s.cu[i]!, a, s.cv[i]!, r);
+        else growBox(into, s.cu[i]!, s.cv[i]!, a, r);
+      }
+      return into;
+    }
   }
 }
