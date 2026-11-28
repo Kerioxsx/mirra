@@ -5,6 +5,8 @@
 // without WebGL or JavaScript. three.js and the model load only when the section comes near.
 // Turning is horizontal only and the wheel is left alone, so the page always scrolls.
 
+const MIRROR = "https://cdn.jsdelivr.net/gh/Kerioxsx/mirra@f3851ed/apps/site/looks/";
+
 const root = document.querySelector("[data-dresser3d]");
 if (root) {
   const near = new IntersectionObserver(
@@ -150,11 +152,14 @@ async function start(root) {
   // looks: loaded once each, on demand
   const loader = new GLTFLoader();
   const cache = new Map();
+  const progress = (f) => say(root, `Loading the 3D figure… ${Math.round(f * 100)}%`);
   const load = (id) => {
     if (!cache.has(id)) {
-      const p = fetchWithProgress(`looks/${id}.glb`, (f) =>
-        say(root, `Loading the 3D figure… ${Math.round(f * 100)}%`),
-      ).then((buf) => loader.parseAsync(buf, ""));
+      // the site's own copy first; where a host can't serve .glb files, the same file from the
+      // public repository through jsDelivr (pinned to the commit that added the looks)
+      const p = fetchWithProgress(`looks/${id}.glb`, progress)
+        .catch(() => fetchWithProgress(`${MIRROR}${id}.glb`, progress))
+        .then((buf) => loader.parseAsync(buf, ""));
       p.catch(() => cache.delete(id));
       cache.set(id, p);
     }
